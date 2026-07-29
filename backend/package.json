@@ -2,7 +2,7 @@
   "name": "ss-eventos-v2-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Backend da Central Ss Eventos V2 — só domínio, consome @oondemand/oon-core-back.",
+  "description": "Backend declarativo da Central SS Eventos V2.",
   "scripts": {
     "dev": "oonCore-back dev",
     "start": "oonCore-back start",
@@ -12,6 +12,6 @@
     "deploy": "oonCore-back deploy"
   },
   "dependencies": {
-    "@oondemand/oon-core-back": "^0.3.43"
+    "@oondemand/oon-core-back": "0.3.43"
   }
 }

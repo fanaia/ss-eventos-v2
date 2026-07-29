@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "agent/**"
+
+permissions:
+  contents: read
+
+jobs:
+  central:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install root toolchain
+        run: npm install --no-audit --no-fund
+
+      - name: Validate OonCore documentation
+        run: npm run ooncore:docs:check
+
+      - name: Validate declarative manifests
+        run: npm run check
+
+      - name: Check backend configuration
+        run: node -e "require('./backend/central.config.js')"
+
+      - name: Install backend
+        run: npm install --prefix backend --no-audit --no-fund
+
+      - name: Install frontend
+        run: npm install --prefix frontend --no-audit --no-fund
+
+      - name: Build frontend
+        run: npm run build --prefix frontend

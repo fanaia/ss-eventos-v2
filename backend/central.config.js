@@ -1,7 +1,7 @@
 /**
- * Configuração da Central Ss Eventos V2 (Seção 8). Apenas identidade, módulos
- * ativos e os paths de domínio. Sem db/auth/deploy — isso vive no Core e nas
- * variáveis de ambiente.
+ * Configuração da Central SS Eventos V2. A Central declara apenas identidade,
+ * módulos e diretórios de extensão; infraestrutura, autenticação e persistência
+ * permanecem no OonCore.
  */
 
 // Em desenvolvimento, aceita o DEV_TOKEN sem chamar o Meus Apps.
@@ -23,23 +23,21 @@ const devAuth =
 module.exports = {
   ecosystem: { role: "member" },
   activation: { enabled: true, configurationVersion: 1, fields: [] },
-  name: "Ss Eventos V2",
+  name: "Central SS Eventos V2",
   slug: "ss-eventos-v2",
 
   auth: devAuth,
 
-  // Módulos opinativos do Core ligados nesta Central.
   modules: {
     collections: true,
     documents: false,
-    pipelines: false,
+    pipelines: true,
     integrations: false,
     omie: false,
     assistants: false,
     currencies: false,
   },
 
-  // Paths de domínio (carregados por convenção pelo Core no boot).
   domain: {
     models: "src/models",
     validations: "src/validations",
