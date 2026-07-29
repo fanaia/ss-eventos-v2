@@ -2,14 +2,16 @@
   "name": "ss-eventos-v2",
   "version": "0.1.0",
   "private": true,
-  "description": "Central Oon Ss Eventos V2 gerada com create-central-oon.",
+  "description": "Central SS Eventos V2 reconstruída de forma declarativa sobre o OonCore.",
   "scripts": {
     "ooncore:docs": "create-central-oon docs --sync",
     "ooncore:docs:check": "create-central-oon docs --check",
+    "check:manifests": "node scripts/validate-manifests.mjs",
+    "check": "npm run check:manifests",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend"
   },
   "devDependencies": {
-    "@oondemand/create-central-oon": "^0.3.8"
+    "@oondemand/create-central-oon": "0.3.43"
   }
 }
