@@ -311,20 +311,20 @@
         "quantidade": {
           "kind": "number",
           "label": "Quantidade",
-          "required": true,
-          "min": 1
+          "min": 1,
+          "default": 1
         },
         "diarias": {
           "kind": "number",
           "label": "Diárias",
-          "required": true,
-          "min": 1
+          "min": 1,
+          "default": 1
         },
         "valorUnitarioOrcamento": {
           "kind": "currency",
           "label": "Valor unitário do orçamento",
-          "required": true,
-          "min": 0.01
+          "min": 0,
+          "default": 0
         },
         "valorTotalOrcamento": {
           "kind": "currency",
@@ -350,8 +350,8 @@
         "valorUnitarioContratacao": {
           "kind": "currency",
           "label": "Valor unitário da contratação",
-          "required": true,
-          "min": 0.01
+          "min": 0,
+          "default": 0
         },
         "valorTotalContratacao": {
           "kind": "currency",
