@@ -1,0 +1,9 @@
+{
+  "name": "Ss Eventos V2",
+  "slug": "ss-eventos-v2",
+  "backend": { "metadataUrl": "/core/metadata" },
+  "navigation": { "mode": "auto" },
+  "collections": [{ "model": "Pessoa", "mode": "dynamic" }],
+  "pipelines": [],
+  "documents": []
+}
