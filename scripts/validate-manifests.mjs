@@ -218,8 +218,20 @@ for (const relativePath of requiredDomainFiles) {
 
 const mainSource = readText("frontend/src/main.tsx");
 if (!mainSource.includes("startFromManifest")) fail("O frontend deve iniciar por startFromManifest.");
-if (/configurePaymentCreation|prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers/.test(mainSource)) {
-  fail("O bootstrap do frontend não pode conter transforms ou registry local.");
+if (/prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers/.test(mainSource)) {
+  fail("O bootstrap do frontend não pode conter registry ou páginas locais.");
+}
+for (const requiredSnippet of [
+  "initialValuesFromParent",
+  'projetoId: "projetoId"',
+  'projetoItemId: "_id"',
+  'valor: "pagamentoValorPendente"',
+  'field: "responsavelPagamentoId"',
+  'widget: "checkbox"',
+]) {
+  if (!mainSource.includes(requiredSnippet)) {
+    fail(`A configuração do novo pagamento está incompleta: ${requiredSnippet}.`);
+  }
 }
 
 const frontendSourceFiles = fs.readdirSync(absolute("frontend/src"), { withFileTypes: true })
