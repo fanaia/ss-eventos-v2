@@ -1,20 +1,23 @@
 # Central SS Eventos V2
 
-Reconstrução da Central SS Eventos sobre o OonCore, iniciada do zero e orientada por manifestos.
+Reconstrução declarativa da Central SS Eventos sobre o OonCore.
 
-## Princípio da implementação
+A V2 existe para comprovar que navegação, coleções, esteiras, formulários, abas, grids relacionados, cálculos e regras específicas do negócio podem ser mantidos sem copiar shell, páginas ou componentes padrão do Core.
 
-Este repositório contém somente o domínio e a declaração da experiência da Central:
+## Arquitetura
 
-- `backend/central.domain.json`: models, campos, fórmulas e validações;
-- `backend/central.config.js`: identidade e módulos habilitados;
-- `frontend/central.ui.json`: coleções, esteira, filtros, modais e abas;
-- `@oondemand/oon-core-back`: autenticação, RBAC, banco, CRUD, metadata, auditoria e validação final;
-- `@oondemand/oon-core-front`: shell, menu, grid, formulários, referências e fórmulas reativas.
+A Central declara somente:
 
-Não há model de negócio em JavaScript nem página React customizada nesta fase.
+- `backend/central.domain.json`: models, campos, referências, fórmulas simples e validações declarativas;
+- `frontend/central.ui.json`: navegação, coleções, esteiras, filtros, abas, grids e ações;
+- `backend/src/validations`: regras específicas que consultam outros registros;
+- `backend/src/triggers`: efeitos de domínio, cálculos entre models e atualização de resumos;
+- `backend/src/hooks`: proteção de exclusão e carga das localidades oficiais;
+- `backend/src/services`: funções puras reutilizadas pelas regras.
 
-## Versão homologada do Core
+O frontend continua com um bootstrap mínimo em `frontend/src/main.tsx`.
+
+## Versão homologada
 
 Os três pacotes estão fixados em `0.3.43`:
 
@@ -22,83 +25,79 @@ Os três pacotes estão fixados em `0.3.43`:
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
 
-A fixação é intencional para que a homologação seja reproduzível.
-
-## Primeira vertical
+## Domínio declarado
 
 ### Cadastros
 
-- Clientes / Fornecedores;
-- Projetos.
+- Clientes/Fornecedores;
+- Contatos;
+- Categorias/Subcategorias.
 
 ### Operação
 
-- Esteira de Itens por etapa: Orçamento, Contratação, Pagamento e Fechamento;
-- modal com abas `Dados do item` e `Valores`;
-- cálculo reativo e autoritativo de orçamento, contratação, pagamento, fee, impostos, fechamento e lucro.
+- Projetos;
+- Itens de Projeto;
+- Esteira de Itens.
 
-O roteiro completo está em [`docs/HOMOLOGACAO_FASE_1.md`](docs/HOMOLOGACAO_FASE_1.md).
+### Financeiro
 
-## Preparação local
+- Pagamentos;
+- Esteira de Pagamentos.
+
+### Configurações
+
+- Responsáveis;
+- Estados;
+- Cidades.
+
+## Regras cobertas
+
+- CPF/CNPJ conforme o tipo de pessoa;
+- cliente ou fornecedor obrigatório;
+- contato principal pertencente ao cliente;
+- cliente, fornecedor, responsáveis e cadastros relacionados ativos;
+- estado/cidade e categoria/subcategoria dependentes;
+- cálculo de orçamento e contratação;
+- fee e imposto conforme o faturamento;
+- fechamento, lucro em valor e percentual;
+- limite dos pagamentos pelo valor contratado;
+- aprovação, recusa e status de trabalho;
+- bloqueio das etapas automáticas de pagamento;
+- atualização dos totais e do resumo de pagamentos;
+- sincronização de estados e cidades pela API oficial do IBGE;
+- proteção contra exclusão de registros em uso.
+
+## Limite desta fase
+
+O contrato funcional da integração está visível nos campos e etapas, mas a infraestrutura continua desabilitada:
+
+```js
+integrations: false
+omie: false
+```
+
+Não existem na V2:
+
+- outbox/inbox;
+- histórico técnico de execução;
+- worker;
+- lock e retry;
+- rotas técnicas;
+- cliente HTTP Omie;
+- models técnicos da integração.
+
+Esses recursos serão incorporados ao OonCore antes da ativação real da integração.
+
+## Validação
 
 ```bash
 npm install
 npm run ooncore:docs:check
 npm run check
+npm install --prefix backend
+npm test --prefix backend
+npm install --prefix frontend
+npm run build --prefix frontend
 ```
 
-Backend:
-
-```bash
-cd backend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Frontend, em outro terminal:
-
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Acesse o frontend com o token local configurado:
-
-```text
-http://localhost:5173/?code=dev-local
-```
-
-## Validações automatizadas
-
-```bash
-npm run check
-```
-
-O comando verifica:
-
-- versões coordenadas do OonCore;
-- models e `basePath` duplicados;
-- referências entre models;
-- referências usadas nas fórmulas;
-- ciclos entre campos calculados;
-- consistência entre `central.domain.json` e `central.ui.json`;
-- presença das dependências reativas na mesma aba do formulário.
-
-O workflow `.github/workflows/ci.yml` também instala backend/frontend e executa o build do frontend.
-
-## Publicação
-
-O repositório mantém o contrato neutro em `oon.deploy.json`. Após merge em `main`, o workflow `publish-dev` solicita a publicação pelo fluxo Oon sem armazenar credenciais de infraestrutura no repositório.
-
-## Próximas fases
-
-1. Homologar a primeira vertical.
-2. Separar categorias e subcategorias em cadastro hierárquico.
-3. Evoluir contatos de clientes e fornecedores.
-4. Importar planilhas de orçamento.
-5. Implementar pagamentos e integração Omie pelo runtime genérico do Core.
-6. Migrar os demais processos da SS Eventos somente após cada capacidade estar consolidada no OonCore.
- 
+O roteiro funcional está em [`docs/HOMOLOGACAO_PARIDADE.md`](docs/HOMOLOGACAO_PARIDADE.md).
