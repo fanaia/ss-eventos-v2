@@ -19,11 +19,13 @@ O frontend continua com um bootstrap mínimo em `frontend/src/main.tsx`.
 
 ## Versão homologada
 
-Os três pacotes estão fixados em `0.3.43`:
+Os três pacotes estão fixados em `0.3.44`:
 
 - `@oondemand/create-central-oon`;
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
+
+Esta versão incorpora o suporte a valores iniciais derivados do registro pai em grids relacionados e preserva a metadata dos campos no formulário de inclusão.
 
 ## Domínio declarado
 
@@ -43,6 +45,15 @@ Os três pacotes estão fixados em `0.3.43`:
 
 - Pagamentos;
 - Esteira de Pagamentos.
+
+Ao criar um pagamento dentro do item:
+
+- projeto e item são vinculados automaticamente;
+- o valor inicia com o saldo pendente do item;
+- a etapa inicial é `Solicitado` e não aparece no formulário;
+- data e moeda usam seus controles apropriados;
+- responsável é selecionado por referência;
+- NF recebida é exibida como checkbox.
 
 ### Configurações
 
