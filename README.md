@@ -101,3 +101,4 @@ O repositório mantém o contrato neutro em `oon.deploy.json`. Após merge em `m
 4. Importar planilhas de orçamento.
 5. Implementar pagamentos e integração Omie pelo runtime genérico do Core.
 6. Migrar os demais processos da SS Eventos somente após cada capacidade estar consolidada no OonCore.
+ 
