@@ -21,7 +21,7 @@ if (ui.schemaVersion !== 2) fail("central.ui.json deve usar schemaVersion 2.");
 if (!Array.isArray(domain.models) || !domain.models.length) fail("O manifesto deve declarar models.");
 if (domain.slug !== ui.slug) fail("Os slugs do domínio e da UI devem ser iguais.");
 
-const expectedVersion = "0.3.43";
+const expectedVersion = "0.3.44";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -84,9 +84,7 @@ for (const model of domain.models) {
     }
     if (!field.computed) continue;
     for (const reference of expressionReferences(field.computed.expression)) {
-      if (!fields[reference]) {
-        fail(`${model.name}.${fieldName} referencia campo inexistente: ${reference}.`);
-      }
+      if (!fields[reference]) fail(`${model.name}.${fieldName} referencia campo inexistente: ${reference}.`);
     }
   }
 
@@ -154,9 +152,7 @@ for (const view of views) {
     }
 
     if (["relatedGrid", "readonlyGrid"].includes(tab.type)) {
-      const relation = typeof tab.relation === "string"
-        ? view.relations?.[tab.relation]
-        : tab.relation;
+      const relation = typeof tab.relation === "string" ? view.relations?.[tab.relation] : tab.relation;
       if (!relation) fail(`A aba ${tab.id} referencia relação inexistente em ${view.model}.`);
       const related = models.get(relation.model);
       for (const column of tab.columns ?? []) {
@@ -164,6 +160,12 @@ for (const view of views) {
       }
       for (const fieldName of tab.create?.fields ?? []) {
         checkField(related, typeof fieldName === "string" ? fieldName : fieldName.field, `A inclusão da aba ${tab.id}`);
+      }
+      for (const [targetField, parentPath] of Object.entries(tab.create?.initialValuesFromParent ?? {})) {
+        checkField(related, targetField, `A herança da aba ${tab.id}`);
+        if (typeof parentPath !== "string" || !parentPath.trim()) {
+          fail(`A herança da aba ${tab.id} deve apontar para um caminho válido no registro pai.`);
+        }
       }
     }
   }
@@ -216,7 +218,7 @@ for (const relativePath of requiredDomainFiles) {
 
 const mainSource = readText("frontend/src/main.tsx");
 if (!mainSource.includes("startFromManifest")) fail("O frontend deve iniciar por startFromManifest.");
-if (/prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers/.test(mainSource)) {
+if (/configurePaymentCreation|prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers/.test(mainSource)) {
   fail("O bootstrap do frontend não pode conter transforms ou registry local.");
 }
 
