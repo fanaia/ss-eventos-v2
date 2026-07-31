@@ -1,0 +1,24 @@
+name: f1-ui-migration
+
+on:
+  push:
+    branches:
+      - agent/f1-central-app-conformance
+    paths:
+      - ".github/workflows/f1-ui-migration.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/f1-central-app-conformance
+          fetch-depth: 0
+
+      - name: Move payment creation into central.ui.json
+        run: node scripts/apply-f1-ui-migration.mjs
