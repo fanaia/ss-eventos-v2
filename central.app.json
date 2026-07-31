@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/@oondemand/create-central-oon/schemas/central.app.schema.json",
+  "schemaVersion": 1,
+  "id": "ss-eventos-v2",
+  "name": "Central SS Eventos V2",
+  "slug": "ss-eventos-v2",
+  "appKind": "member-central",
+  "modules": {
+    "collections": true,
+    "documents": false,
+    "pipelines": true,
+    "integrations": false,
+    "omie": false,
+    "assistants": false,
+    "currencies": false
+  },
+  "capabilities": [
+    "core.collections",
+    "core.pipelines",
+    "domain.computed-fields",
+    "ui.related-grid.parent-defaults"
+  ],
+  "compatibility": {
+    "core": {
+      "minVersion": "0.3.45",
+      "maxVersionExclusive": "0.4.0"
+    }
+  },
+  "activation": {
+    "enabled": true,
+    "configurationVersion": 1,
+    "fields": []
+  }
+}
