@@ -32,8 +32,18 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Regenerate published package integrity
-        run: npm install --package-lock-only --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Replace release-candidate integrity with published integrity
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const file = 'frontend/package-lock.json';
+          const candidate = 'sha512-uq/mA7NT9y6bq/3omVYlT7WShuzjOgFzjdk34UMROkoBBgwLiSmuKU9urgE4snXYYTp421+4zVcVQy3BdLUYqw==';
+          const published = 'sha512-SCxGVBIT+9ZDzyjOiufzvI+XtkLzr57DHwSwfJ604dedx6sLteHpCUiRd2Ez5dm0K8D+KQsZjzyk3GwXxprRDw==';
+          const source = fs.readFileSync(file, 'utf8');
+          if (!source.includes(candidate)) throw new Error('Integridade candidata não encontrada no lockfile.');
+          fs.writeFileSync(file, source.replace(candidate, published));
+          NODE
 
       - name: Verify reproducible frontend install
         run: npm ci --prefix frontend --no-audit --no-fund
