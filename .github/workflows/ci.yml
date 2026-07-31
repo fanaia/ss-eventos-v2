@@ -11,7 +11,25 @@ permissions:
   contents: read
 
 jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate app, domain and UI manifests
+        run: node scripts/validate-manifests.mjs
+
+      - name: Check backend extension boundary
+        run: node -e "require('./backend/central.config.js')"
+
   central:
+    needs: static-contract
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,19 +47,16 @@ jobs:
       - name: Validate OonCore documentation
         run: npm run ooncore:docs:check
 
-      - name: Validate declarative manifests
+      - name: Validate manifests, baseline and conformance
         run: npm run check
 
-      - name: Check backend configuration
-        run: node -e "require('./backend/central.config.js')"
-
-      - name: Install backend
+      - name: Install backend reproducibly
         run: npm ci --prefix backend --no-audit --no-fund
 
       - name: Test backend domain
         run: npm test --prefix backend
 
-      - name: Install frontend
+      - name: Install frontend reproducibly
         run: npm ci --prefix frontend --no-audit --no-fund
 
       - name: Build frontend

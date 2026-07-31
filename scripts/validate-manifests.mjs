@@ -10,18 +10,35 @@ const fail = (message) => {
   throw new Error(message);
 };
 
+const app = readJson("central.app.json");
 const domain = readJson("backend/central.domain.json");
 const ui = readJson("frontend/central.ui.json");
 const rootPackage = readJson("package.json");
 const backendPackage = readJson("backend/package.json");
 const frontendPackage = readJson("frontend/package.json");
 
+if (app.schemaVersion !== 1) fail("central.app.json deve usar schemaVersion 1.");
 if (domain.schemaVersion !== 1) fail("central.domain.json deve usar schemaVersion 1.");
 if (ui.schemaVersion !== 2) fail("central.ui.json deve usar schemaVersion 2.");
 if (!Array.isArray(domain.models) || !domain.models.length) fail("O manifesto deve declarar models.");
-if (domain.slug !== ui.slug) fail("Os slugs do domínio e da UI devem ser iguais.");
+if (app.slug !== domain.slug) fail("Os slugs do app e do domínio devem ser iguais.");
+for (const identityField of ["name", "slug", "appKind", "auth"]) {
+  if (Object.prototype.hasOwnProperty.call(ui, identityField)) {
+    fail(`central.ui.json não pode declarar identidade/auth: ${identityField}.`);
+  }
+}
+if (app.appKind !== "member-central") fail("SS Eventos V2 deve usar appKind member-central.");
+if (app.modules?.collections !== true || app.modules?.pipelines !== true) {
+  fail("SS Eventos V2 deve habilitar collections e pipelines no central.app.json.");
+}
+if (app.modules?.integrations !== false || app.modules?.omie !== false) {
+  fail("Integrações e Omie devem continuar desabilitados até a abstração no OonCore.");
+}
+for (const capability of ["core.collections", "core.pipelines", "domain.computed-fields", "ui.related-grid.parent-defaults"]) {
+  if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
+}
 
-const expectedVersion = "0.3.44";
+const expectedVersion = "0.3.45";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -31,6 +48,9 @@ for (const [name, version] of Object.entries(versions)) {
   if (version !== expectedVersion) {
     fail(`${name} deve usar exatamente OonCore ${expectedVersion}; encontrado ${version}.`);
   }
+}
+if (app.compatibility?.core?.minVersion !== expectedVersion) {
+  fail(`central.app.json deve exigir OonCore ${expectedVersion}.`);
 }
 
 const expectedModels = [
@@ -158,8 +178,8 @@ for (const view of views) {
       for (const column of tab.columns ?? []) {
         checkField(related, typeof column === "string" ? column : column.field, `A aba ${tab.id}`);
       }
-      for (const fieldName of tab.create?.fields ?? []) {
-        checkField(related, typeof fieldName === "string" ? fieldName : fieldName.field, `A inclusão da aba ${tab.id}`);
+      for (const field of tab.create?.fields ?? []) {
+        checkField(related, typeof field === "string" ? field : field.field, `A inclusão da aba ${tab.id}`);
       }
       for (const [targetField, parentPath] of Object.entries(tab.create?.initialValuesFromParent ?? {})) {
         checkField(related, targetField, `A herança da aba ${tab.id}`);
@@ -216,22 +236,45 @@ for (const relativePath of requiredDomainFiles) {
   if (!fs.existsSync(absolute(relativePath))) fail(`Arquivo de domínio obrigatório ausente: ${relativePath}.`);
 }
 
-const mainSource = readText("frontend/src/main.tsx");
-if (!mainSource.includes("startFromManifest")) fail("O frontend deve iniciar por startFromManifest.");
-if (/prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers/.test(mainSource)) {
-  fail("O bootstrap do frontend não pode conter registry ou páginas locais.");
+const itemPipeline = (ui.pipelines ?? []).find((pipeline) => pipeline.model === "ProjetoItem");
+const paymentTab = itemPipeline?.ticketModal?.tabs?.find((tab) => tab.id === "pagamento");
+if (!paymentTab?.create) fail("A criação declarativa de pagamentos é obrigatória em central.ui.json.");
+const expectedCreateFields = [
+  "dataPrevisaoPagamento",
+  "valor",
+  "responsavelPagamentoId",
+  "nfRecebida",
+];
+const actualCreateFields = (paymentTab.create.fields ?? []).map((field) => field.field);
+if (JSON.stringify(actualCreateFields) !== JSON.stringify(expectedCreateFields)) {
+  fail(`Campos da criação de pagamento divergentes: ${actualCreateFields.join(", ")}.`);
 }
-for (const requiredSnippet of [
-  "initialValuesFromParent",
-  'projetoId: "projetoId"',
-  'projetoItemId: "_id"',
-  'valor: "pagamentoValorPendente"',
-  'field: "responsavelPagamentoId"',
-  'widget: "checkbox"',
-]) {
-  if (!mainSource.includes(requiredSnippet)) {
-    fail(`A configuração do novo pagamento está incompleta: ${requiredSnippet}.`);
-  }
+const responsibleField = paymentTab.create.fields.find((field) => field.field === "responsavelPagamentoId");
+if (responsibleField?.ref !== "Responsavel" || responsibleField?.referenceFilters?.status !== "Ativo") {
+  fail("Responsável do pagamento deve usar ref Responsavel filtrada por status Ativo.");
+}
+const nfField = paymentTab.create.fields.find((field) => field.field === "nfRecebida");
+if (nfField?.widget !== "checkbox" || nfField?.checkedValue !== true || nfField?.uncheckedValue !== false) {
+  fail("NF recebida deve usar checkbox booleano declarativo.");
+}
+const expectedInheritance = {
+  projetoId: "projetoId",
+  projetoItemId: "_id",
+  valor: "pagamentoValorPendente",
+};
+if (JSON.stringify(paymentTab.create.initialValuesFromParent) !== JSON.stringify(expectedInheritance)) {
+  fail("A criação de pagamento deve herdar projeto, item e saldo pendente do registro pai.");
+}
+
+const mainSource = readText("frontend/src/main.tsx");
+if (!mainSource.includes("startCentralFromManifest")) {
+  fail("O frontend deve iniciar por startCentralFromManifest.");
+}
+for (const requiredSnippet of ["../../central.app.json", "../central.ui.json"]) {
+  if (!mainSource.includes(requiredSnippet)) fail(`Bootstrap incompleto: ${requiredSnippet}.`);
+}
+if (/structuredClone|configurePaymentCreation|prepareManifest|automaticPayment|registry\s*:|pageComponents|cellRenderers|\.find\s*\(/.test(mainSource)) {
+  fail("O bootstrap do frontend não pode transformar manifestos nem registrar páginas locais.");
 }
 
 const frontendSourceFiles = fs.readdirSync(absolute("frontend/src"), { withFileTypes: true })
@@ -242,11 +285,13 @@ if (frontendSourceFiles.some((file) => file !== "main.tsx")) {
 }
 
 const configSource = readText("backend/central.config.js");
-if (!/integrations:\s*false/.test(configSource) || !/omie:\s*false/.test(configSource)) {
-  fail("Integrações e Omie devem continuar desabilitados até a abstração no OonCore.");
+for (const forbiddenKey of ["name", "slug", "appKind", "ecosystem", "activation", "modules", "capabilities", "auth"]) {
+  if (new RegExp(`\\b${forbiddenKey}\\s*:`).test(configSource)) {
+    fail(`${forbiddenKey} deve viver em central.app.json ou no OonCore, não em central.config.js.`);
+  }
 }
 
 console.log(
-  `Manifestos válidos: ${domain.models.length} models, ${ui.collections.length} coleções, `
+  `Manifestos válidos: app ${app.id}, ${domain.models.length} models, ${ui.collections.length} coleções, `
     + `${ui.pipelines.length} esteiras, OonCore ${expectedVersion}.`,
 );
