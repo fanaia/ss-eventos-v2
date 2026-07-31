@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-07-31",
+  "role": "comparison-target",
+  "self": {
+    "repository": "fanaia/ss-eventos-v2",
+    "branch": "main",
+    "gitSha": "7c3506b04c61bf0ca9a6c52ae1e64f6b7b079eab"
+  },
+  "goldenMaster": {
+    "repository": "fanaia/ss-eventos",
+    "branch": "main",
+    "gitSha": "3f689bed834aab7dd024a8e31d37bf7623efae58",
+    "pullRequest": "https://github.com/fanaia/ss-eventos/pull/32"
+  },
+  "coordination": {
+    "repository": "oondemand/oon-docs",
+    "issue": 5
+  },
+  "versions": {
+    "application": "0.1.0",
+    "createCentralOon": "0.3.44",
+    "oonCoreBack": "0.3.44",
+    "oonCoreFront": "0.3.44"
+  },
+  "boundary": {
+    "integrationsEnabled": false,
+    "omieEnabled": false,
+    "parityClaimed": false,
+    "cutoverAllowed": false
+  }
+}

@@ -99,6 +99,16 @@ Não existem na V2:
 
 Esses recursos serão incorporados ao OonCore antes da ativação real da integração.
 
+## Referência da Fase 0
+
+A V2 está fixada apenas como alvo de comparação da SS-Eventos original. Ela ainda não declara paridade integral e não está autorizada para cutover.
+
+```bash
+npm run baseline:check
+```
+
+Os SHAs, versões e limites estão em [`baseline.reference.json`](baseline.reference.json) e [`docs/BASELINE_REFERENCE.md`](docs/BASELINE_REFERENCE.md).
+
 ## Validação
 
 ```bash

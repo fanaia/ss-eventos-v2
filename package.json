@@ -7,7 +7,8 @@
     "ooncore:docs": "create-central-oon docs --sync",
     "ooncore:docs:check": "create-central-oon docs --check",
     "check:manifests": "node scripts/validate-manifests.mjs",
-    "check": "npm run check:manifests",
+    "baseline:check": "node scripts/check-baseline-reference.mjs",
+    "check": "npm run check:manifests && npm run baseline:check",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend"
   },
