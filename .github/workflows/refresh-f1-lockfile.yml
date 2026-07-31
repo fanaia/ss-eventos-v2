@@ -6,12 +6,18 @@ on:
       - agent/f1-central-app-conformance
     paths:
       - ".github/workflows/refresh-f1-lockfile.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/refresh-f1-lockfile.yml"
 
 permissions:
   contents: write
 
 jobs:
   refresh:
+    if: github.event.pull_request.head.ref == 'agent/f1-central-app-conformance' || github.ref == 'refs/heads/agent/f1-central-app-conformance'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout migration branch
