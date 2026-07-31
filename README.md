@@ -26,6 +26,8 @@ Os três pacotes estão fixados exatamente em `0.3.45`:
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
 
+A versão `0.3.45` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
+
 A versão introduz `central.app.json`, bootstrap estrito, autenticação local fornecida pelo Core e o gate `create-central-oon conformance`.
 
 ## Identidade e capabilities
