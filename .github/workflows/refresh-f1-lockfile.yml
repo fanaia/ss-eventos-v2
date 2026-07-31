@@ -1,0 +1,44 @@
+name: refresh-f1-lockfile
+
+on:
+  push:
+    branches:
+      - agent/f1-central-app-conformance
+    paths:
+      - ".github/workflows/refresh-f1-lockfile.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/f1-central-app-conformance
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Regenerate published package integrity
+        run: npm install --package-lock-only --prefix frontend --ignore-scripts --no-audit --no-fund
+
+      - name: Verify reproducible frontend install
+        run: npm ci --prefix frontend --no-audit --no-fund
+
+      - name: Commit refreshed lockfile and remove workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/refresh-f1-lockfile.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/package-lock.json .github/workflows/refresh-f1-lockfile.yml
+          git commit -m "chore: refresh published npm integrity"
+          git push origin HEAD:agent/f1-central-app-conformance
