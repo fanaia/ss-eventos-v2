@@ -140,7 +140,7 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
 });
 
-test("Projeto usa o OonCore 0.3.52 com correções de formulário multiaaba", () => {
+test("Projeto usa o OonCore 0.3.52 com correções de formulários, pagamentos e ações sequenciais", () => {
   assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.52");
   assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.52");
   assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.52");
