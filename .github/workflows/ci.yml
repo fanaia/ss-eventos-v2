@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   apply-multitab-release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/persist-multitab-form-draft'
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/persist-multitab-form-draft'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
