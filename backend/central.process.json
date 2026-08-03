@@ -1,0 +1,896 @@
+{
+  "schemaVersion": 1,
+  "models": {
+    "ClienteFornecedor": {
+      "deleteProtection": [
+        {
+          "sourceModel": "Contato",
+          "foreignField": "clienteFornecedorId",
+          "message": "Não é possível excluir o cadastro porque existem contatos vinculados."
+        },
+        {
+          "sourceModel": "Projeto",
+          "foreignField": "clienteId",
+          "message": "Não é possível excluir o cadastro porque ele é cliente de um projeto."
+        },
+        {
+          "sourceModel": "Projeto",
+          "foreignField": "fornecedorId",
+          "message": "Não é possível excluir o cadastro porque ele é fornecedor de um projeto."
+        }
+      ]
+    },
+    "Contato": {
+      "references": [
+        {
+          "field": "clienteFornecedorId",
+          "sourceModel": "ClienteFornecedor",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um cliente/fornecedor ativo."
+          },
+          "message": "Selecione um cliente/fornecedor válido."
+        }
+      ],
+      "deleteProtection": [
+        {
+          "sourceModel": "Projeto",
+          "foreignField": "contatoPrincipalId",
+          "message": "Não é possível excluir o contato porque ele é o contato principal de um projeto."
+        }
+      ]
+    },
+    "Categoria": {
+      "references": [
+        {
+          "field": "categoriaPaiId",
+          "sourceModel": "Categoria",
+          "required": false,
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione uma categoria pai ativa."
+          },
+          "message": "Selecione uma categoria pai válida."
+        }
+      ],
+      "deleteProtection": [
+        {
+          "sourceModel": "Categoria",
+          "foreignField": "categoriaPaiId",
+          "message": "Não é possível excluir a categoria porque existem subcategorias vinculadas."
+        },
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "categoriaId",
+          "message": "Não é possível excluir a categoria porque existem itens vinculados."
+        },
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "subcategoriaId",
+          "message": "Não é possível excluir a subcategoria porque existem itens vinculados."
+        }
+      ]
+    },
+    "Estado": {
+      "deleteProtection": [
+        {
+          "sourceModel": "Cidade",
+          "foreignField": "estadoId",
+          "message": "Não é possível excluir o estado porque existem cidades vinculadas."
+        },
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "estadoId",
+          "message": "Não é possível excluir o estado porque existem itens vinculados."
+        }
+      ]
+    },
+    "Cidade": {
+      "references": [
+        {
+          "field": "estadoId",
+          "sourceModel": "Estado",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um estado ativo para a cidade."
+          },
+          "message": "Selecione um estado válido para a cidade."
+        }
+      ],
+      "deleteProtection": [
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "cidadeId",
+          "message": "Não é possível excluir a cidade porque existem itens vinculados."
+        }
+      ]
+    },
+    "Responsavel": {
+      "deleteProtection": [
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "responsavelId",
+          "message": "Não é possível excluir o responsável porque existem itens vinculados."
+        },
+        {
+          "sourceModel": "Pagamento",
+          "foreignField": "responsavelPagamentoId",
+          "message": "Não é possível excluir o responsável porque existem pagamentos vinculados."
+        }
+      ]
+    },
+    "Projeto": {
+      "references": [
+        {
+          "field": "clienteId",
+          "sourceModel": "ClienteFornecedor",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um cliente ativo."
+          },
+          "constraints": [
+            {
+              "sourceField": "cliente",
+              "equals": true,
+              "message": "O cadastro selecionado não está marcado como Cliente."
+            }
+          ],
+          "message": "Selecione um cliente válido."
+        },
+        {
+          "field": "fornecedorId",
+          "sourceModel": "ClienteFornecedor",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um fornecedor ativo."
+          },
+          "constraints": [
+            {
+              "sourceField": "fornecedor",
+              "equals": true,
+              "message": "O cadastro selecionado não está marcado como Fornecedor."
+            }
+          ],
+          "message": "Selecione um fornecedor válido."
+        },
+        {
+          "field": "contatoPrincipalId",
+          "sourceModel": "Contato",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um contato ativo."
+          },
+          "constraints": [
+            {
+              "sourceField": "clienteFornecedorId",
+              "equalsField": "clienteId",
+              "message": "O contato principal deve pertencer ao cliente selecionado."
+            }
+          ],
+          "message": "Selecione um contato principal válido."
+        }
+      ],
+      "deleteProtection": [
+        {
+          "sourceModel": "ProjetoItem",
+          "foreignField": "projetoId",
+          "message": "Não é possível excluir o projeto porque existem itens vinculados."
+        },
+        {
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoId",
+          "message": "Não é possível excluir o projeto porque existem pagamentos vinculados."
+        }
+      ]
+    },
+    "ProjetoItem": {
+      "references": [
+        {
+          "field": "projetoId",
+          "sourceModel": "Projeto",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um projeto ativo."
+          },
+          "message": "Selecione um projeto válido."
+        },
+        {
+          "field": "responsavelId",
+          "sourceModel": "Responsavel",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um responsável ativo."
+          },
+          "constraints": [
+            {
+              "sourceField": "tipo",
+              "in": ["Operacional", "Ambos"],
+              "message": "O responsável selecionado não está habilitado para a operação."
+            }
+          ],
+          "message": "Selecione um responsável válido."
+        },
+        {
+          "field": "estadoId",
+          "sourceModel": "Estado",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um estado ativo."
+          },
+          "message": "Selecione um estado válido."
+        },
+        {
+          "field": "cidadeId",
+          "sourceModel": "Cidade",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione uma cidade ativa."
+          },
+          "constraints": [
+            {
+              "sourceField": "estadoId",
+              "equalsField": "estadoId",
+              "message": "A cidade selecionada não pertence ao estado informado."
+            }
+          ],
+          "message": "Selecione uma cidade válida."
+        },
+        {
+          "field": "categoriaId",
+          "sourceModel": "Categoria",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione uma categoria ativa."
+          },
+          "constraints": [
+            {
+              "sourceField": "categoriaPaiId",
+              "empty": true,
+              "message": "Selecione uma categoria principal, sem categoria pai."
+            }
+          ],
+          "message": "Selecione uma categoria válida."
+        },
+        {
+          "field": "subcategoriaId",
+          "sourceModel": "Categoria",
+          "required": false,
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione uma subcategoria ativa."
+          },
+          "constraints": [
+            {
+              "sourceField": "categoriaPaiId",
+              "equalsField": "categoriaId",
+              "message": "A subcategoria selecionada não pertence à categoria informada."
+            }
+          ],
+          "message": "Selecione uma subcategoria válida."
+        }
+      ],
+      "bindings": [
+        {
+          "field": "percentualFeeAplicado",
+          "kind": "lookup",
+          "sourceModel": "Projeto",
+          "localField": "projetoId",
+          "sourceField": "percentualFee",
+          "watchFields": ["percentualFee"],
+          "recalculate": "async",
+          "default": 0
+        },
+        {
+          "field": "percentualImpostoAplicado",
+          "kind": "lookup",
+          "sourceModel": "Projeto",
+          "localField": "projetoId",
+          "sourceField": "percentualImposto",
+          "watchFields": ["percentualImposto"],
+          "recalculate": "async",
+          "default": 0
+        },
+        {
+          "field": "fechamentoValor",
+          "kind": "expression",
+          "precision": 2,
+          "expression": { "field": "orcamentoTotal" }
+        },
+        {
+          "field": "fechamentoFee",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "if",
+            "args": [
+              {
+                "op": "eq",
+                "args": [
+                  { "field": "faturamento" },
+                  { "value": "Agência Interna" }
+                ]
+              },
+              { "value": 0 },
+              {
+                "op": "divide",
+                "args": [
+                  {
+                    "op": "multiply",
+                    "args": [
+                      { "field": "orcamentoTotal" },
+                      { "field": "percentualFeeAplicado" }
+                    ]
+                  },
+                  { "value": 100 }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "field": "fechamentoImposto",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "divide",
+            "args": [
+              {
+                "op": "multiply",
+                "args": [
+                  {
+                    "op": "if",
+                    "args": [
+                      {
+                        "op": "eq",
+                        "args": [
+                          { "field": "faturamento" },
+                          { "value": "Agência" }
+                        ]
+                      },
+                      {
+                        "op": "add",
+                        "args": [
+                          { "field": "orcamentoTotal" },
+                          { "field": "fechamentoFee" }
+                        ]
+                      },
+                      {
+                        "op": "if",
+                        "args": [
+                          {
+                            "op": "eq",
+                            "args": [
+                              { "field": "faturamento" },
+                              { "value": "Agência Interna" }
+                            ]
+                          },
+                          { "field": "orcamentoTotal" },
+                          { "field": "fechamentoFee" }
+                        ]
+                      }
+                    ]
+                  },
+                  { "field": "percentualImpostoAplicado" }
+                ]
+              },
+              { "value": 100 }
+            ]
+          }
+        },
+        {
+          "field": "fechamentoTotal",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "add",
+            "args": [
+              { "field": "orcamentoTotal" },
+              { "field": "fechamentoFee" },
+              { "field": "fechamentoImposto" }
+            ]
+          }
+        },
+        {
+          "field": "fechamentoLucroValor",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "add",
+            "args": [
+              {
+                "op": "subtract",
+                "args": [
+                  { "field": "orcamentoTotal" },
+                  { "field": "contratacaoTotal" }
+                ]
+              },
+              { "field": "fechamentoFee" }
+            ]
+          }
+        },
+        {
+          "field": "fechamentoLucroPercentual",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "if",
+            "args": [
+              {
+                "op": "gt",
+                "args": [
+                  { "field": "orcamentoTotal" },
+                  { "value": 0 }
+                ]
+              },
+              {
+                "op": "multiply",
+                "args": [
+                  {
+                    "op": "divide",
+                    "args": [
+                      { "field": "fechamentoLucroValor" },
+                      { "field": "orcamentoTotal" }
+                    ]
+                  },
+                  { "value": 100 }
+                ]
+              },
+              { "value": 0 }
+            ]
+          }
+        },
+        {
+          "field": "pagamentoTotalPlanejado",
+          "kind": "aggregate",
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoItemId",
+          "operator": "sum",
+          "sourceField": "valor",
+          "match": { "canceladoNaCentral": { "neq": true } },
+          "watchFields": ["valor", "canceladoNaCentral"],
+          "default": 0
+        },
+        {
+          "field": "pagamentoTotalPago",
+          "kind": "aggregate",
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoItemId",
+          "operator": "sum",
+          "sourceField": "omieValorPago",
+          "match": { "canceladoNaCentral": { "neq": true } },
+          "watchFields": ["omieValorPago", "canceladoNaCentral"],
+          "default": 0
+        },
+        {
+          "field": "pagamentoValorPendente",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "max",
+            "args": [
+              { "value": 0 },
+              {
+                "op": "subtract",
+                "args": [
+                  { "field": "contratacaoTotal" },
+                  { "field": "pagamentoTotalPago" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "field": "pagamentoStatus",
+          "kind": "aggregate",
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoItemId",
+          "operator": "count",
+          "match": {
+            "canceladoNaCentral": { "neq": true },
+            "omieStatusIntegracao": "Erro"
+          },
+          "watchFields": ["omieStatusIntegracao", "canceladoNaCentral"],
+          "default": 0
+        },
+        {
+          "field": "pagamentoResumo",
+          "kind": "aggregate",
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoItemId",
+          "operator": "count",
+          "match": {
+            "canceladoNaCentral": { "neq": true },
+            "etapa": { "in": ["Enviado para Omie", "Pagamento Ok"] }
+          },
+          "watchFields": ["etapa", "canceladoNaCentral"],
+          "default": 0
+        },
+        {
+          "field": "pagamentoStatus",
+          "kind": "expression",
+          "expression": {
+            "op": "if",
+            "args": [
+              {
+                "op": "gt",
+                "args": [
+                  { "field": "pagamentoTotalPlanejado" },
+                  {
+                    "op": "add",
+                    "args": [
+                      { "field": "contratacaoTotal" },
+                      { "value": 0.01 }
+                    ]
+                  }
+                ]
+              },
+              { "value": "Divergência" },
+              {
+                "op": "if",
+                "args": [
+                  {
+                    "op": "gt",
+                    "args": [
+                      { "field": "pagamentoStatus" },
+                      { "value": 0 }
+                    ]
+                  },
+                  { "value": "Erro de integração" },
+                  {
+                    "op": "if",
+                    "args": [
+                      {
+                        "op": "and",
+                        "args": [
+                          {
+                            "op": "lte",
+                            "args": [
+                              { "field": "pagamentoValorPendente" },
+                              { "value": 0.01 }
+                            ]
+                          },
+                          {
+                            "op": "gt",
+                            "args": [
+                              { "field": "contratacaoTotal" },
+                              { "value": 0 }
+                            ]
+                          }
+                        ]
+                      },
+                      { "value": "Pago" },
+                      {
+                        "op": "if",
+                        "args": [
+                          {
+                            "op": "gt",
+                            "args": [
+                              { "field": "pagamentoTotalPago" },
+                              { "value": 0 }
+                            ]
+                          },
+                          { "value": "Parcialmente pago" },
+                          {
+                            "op": "if",
+                            "args": [
+                              {
+                                "op": "gt",
+                                "args": [
+                                  { "field": "pagamentoResumo" },
+                                  { "value": 0 }
+                                ]
+                              },
+                              { "value": "Enviado ao Omie" },
+                              {
+                                "op": "if",
+                                "args": [
+                                  {
+                                    "op": "gt",
+                                    "args": [
+                                      { "field": "pagamentoTotalPlanejado" },
+                                      { "value": 0 }
+                                    ]
+                                  },
+                                  { "value": "Pagamento pendente" },
+                                  { "value": "Sem pagamento" }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "field": "pagamentoResumo",
+          "kind": "expression",
+          "expression": {
+            "op": "if",
+            "args": [
+              {
+                "op": "eq",
+                "args": [
+                  { "field": "pagamentoStatus" },
+                  { "value": "Pago" }
+                ]
+              },
+              { "value": "Pago" },
+              {
+                "op": "concat",
+                "args": [
+                  { "value": "Pendente: " },
+                  {
+                    "op": "formatCurrency",
+                    "args": [
+                      { "field": "pagamentoValorPendente" },
+                      { "value": "BRL" },
+                      { "value": "pt-BR" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "deleteProtection": [
+        {
+          "sourceModel": "Pagamento",
+          "foreignField": "projetoItemId",
+          "message": "Não é possível excluir o item porque existem pagamentos vinculados."
+        }
+      ]
+    },
+    "Pagamento": {
+      "references": [
+        {
+          "field": "projetoId",
+          "sourceModel": "Projeto",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um projeto ativo."
+          },
+          "message": "Selecione um projeto válido."
+        },
+        {
+          "field": "projetoItemId",
+          "sourceModel": "ProjetoItem",
+          "constraints": [
+            {
+              "sourceField": "projetoId",
+              "equalsField": "projetoId",
+              "message": "O pagamento deve estar vinculado ao mesmo projeto do item."
+            }
+          ],
+          "message": "Selecione um item de projeto válido."
+        },
+        {
+          "field": "responsavelPagamentoId",
+          "sourceModel": "Responsavel",
+          "active": {
+            "field": "status",
+            "value": "Ativo",
+            "message": "Selecione um responsável de pagamento ativo."
+          },
+          "constraints": [
+            {
+              "sourceField": "tipo",
+              "in": ["Pagamento", "Ambos"],
+              "message": "O responsável selecionado não está habilitado para pagamentos."
+            }
+          ],
+          "message": "Selecione um responsável de pagamento válido."
+        }
+      ],
+      "workflow": {
+        "stageField": "etapa",
+        "defaultStage": "Solicitado",
+        "initialStages": ["Solicitado"],
+        "initialStageMessage": "O pagamento deve iniciar em uma etapa manual.",
+        "transitions": [
+          { "from": "Solicitado", "to": "Aprovado" },
+          { "from": "Aprovado", "to": "Solicitado" },
+          { "from": "Aprovado", "to": "Aguardando NF" },
+          { "from": "Aguardando NF", "to": "Aprovado" },
+          {
+            "from": "Aguardando NF",
+            "to": "Enviado para Omie",
+            "when": {
+              "op": "eq",
+              "args": [
+                { "field": "nfRecebida" },
+                { "value": true }
+              ]
+            },
+            "message": "Confirme o recebimento da NF antes de enviar o pagamento ao Omie."
+          }
+        ],
+        "lockedFieldsByStage": {
+          "Enviado para Omie": [
+            "projetoId",
+            "projetoItemId",
+            "dataPrevisaoPagamento",
+            "valor",
+            "responsavelPagamentoId",
+            "nfRecebida",
+            "observacao",
+            "etapa",
+            "statusTrabalho"
+          ],
+          "Pagamento Ok": [
+            "projetoId",
+            "projetoItemId",
+            "dataPrevisaoPagamento",
+            "valor",
+            "responsavelPagamentoId",
+            "nfRecebida",
+            "observacao",
+            "etapa",
+            "statusTrabalho"
+          ]
+        },
+        "lockedMessage": "Esta é uma etapa automática. Os dados de negócio ficam bloqueados até a integração concluir.",
+        "onEnter": [
+          {
+            "stage": "Enviado para Omie",
+            "set": {
+              "statusTrabalho": "Trabalhando",
+              "omieStatusIntegracao": "Pendente"
+            }
+          },
+          {
+            "stage": "Pagamento Ok",
+            "set": { "statusTrabalho": "Trabalhando" }
+          }
+        ],
+        "automaticTransitions": [
+          {
+            "when": {
+              "op": "eq",
+              "args": [
+                { "field": "omieLiquidado" },
+                { "value": true }
+              ]
+            },
+            "to": "Pagamento Ok",
+            "set": { "statusTrabalho": "Trabalhando" }
+          }
+        ]
+      },
+      "bindings": [
+        {
+          "field": "omieValorTitulo",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "coalesce",
+            "args": [
+              { "field": "valor" },
+              { "value": 0 }
+            ]
+          }
+        },
+        {
+          "field": "omieValorPendente",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "max",
+            "args": [
+              { "value": 0 },
+              {
+                "op": "subtract",
+                "args": [
+                  { "field": "valor" },
+                  { "field": "omieValorPago" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "field": "omieLiquidado",
+          "kind": "expression",
+          "expression": {
+            "op": "or",
+            "args": [
+              { "field": "omieLiquidado" },
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "gt",
+                    "args": [
+                      { "field": "valor" },
+                      { "value": 0 }
+                    ]
+                  },
+                  {
+                    "op": "lte",
+                    "args": [
+                      { "field": "omieValorPendente" },
+                      { "value": 0.01 }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "field": "omieStatusIntegracao",
+          "kind": "expression",
+          "expression": {
+            "op": "if",
+            "args": [
+              {
+                "op": "and",
+                "args": [
+                  {
+                    "op": "eq",
+                    "args": [
+                      { "field": "etapa" },
+                      { "value": "Enviado para Omie" }
+                    ]
+                  },
+                  {
+                    "op": "not",
+                    "args": [
+                      {
+                        "op": "in",
+                        "args": [
+                          { "field": "omieStatusIntegracao" },
+                          { "value": ["Enviado", "Cancelado"] }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { "value": "Pendente" },
+              {
+                "op": "coalesce",
+                "args": [
+                  { "field": "omieStatusIntegracao" },
+                  { "value": "Não enviado" }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "atomicInvariants": [
+        {
+          "name": "pagamentos-limitados-ao-contratado",
+          "kind": "relatedSumLteParentField",
+          "parentModel": "ProjetoItem",
+          "parentLocalField": "projetoItemId",
+          "sourceField": "valor",
+          "parentField": "contratacaoTotal",
+          "match": { "canceladoNaCentral": { "neq": true } },
+          "tolerance": 0.01,
+          "code": "PAGAMENTO_ACIMA_CONTRATADO",
+          "message": "A soma dos pagamentos ({total}) não pode ultrapassar o valor contratado do item ({limit})."
+        }
+      ]
+    }
+  }
+}
