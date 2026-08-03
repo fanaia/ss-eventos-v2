@@ -1,0 +1,167 @@
+name: apply-related-grid-labels-0.3.55
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    if: github.head_ref == 'fix/related-grid-labels-ooncore-0.3.55'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout update branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/related-grid-labels-ooncore-0.3.55
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Update Central and validate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          function readJson(path) {
+            return JSON.parse(fs.readFileSync(path, 'utf8'));
+          }
+
+          function writeJson(path, payload) {
+            fs.writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
+          }
+
+          function updateJson(path, update) {
+            const payload = readJson(path);
+            update(payload);
+            writeJson(path, payload);
+          }
+
+          function replaceAllIn(path, replacements) {
+            let source = fs.readFileSync(path, 'utf8');
+            for (const [before, after] of replacements) source = source.replaceAll(before, after);
+            fs.writeFileSync(path, source);
+          }
+
+          const centralVersion = '0.1.3';
+          const coreVersion = '0.3.55';
+
+          updateJson('package.json', (payload) => {
+            payload.version = centralVersion;
+            payload.devDependencies['@oondemand/create-central-oon'] = coreVersion;
+          });
+          updateJson('backend/package.json', (payload) => {
+            payload.version = centralVersion;
+            payload.dependencies['@oondemand/oon-core-back'] = coreVersion;
+          });
+          updateJson('frontend/package.json', (payload) => {
+            payload.version = centralVersion;
+            payload.dependencies['@oondemand/oon-core-front'] = coreVersion;
+          });
+          updateJson('central.app.json', (payload) => {
+            payload.compatibility.core.minVersion = coreVersion;
+          });
+
+          updateJson('backend/central.domain.json', (domain) => {
+            const item = domain.models.find((model) => model.name === 'ProjetoItem');
+            if (!item) throw new Error('Model ProjetoItem não encontrada.');
+            for (const fieldName of ['estadoId', 'cidadeId']) {
+              if (!item.fields[fieldName]) throw new Error(`Campo ProjetoItem.${fieldName} não encontrado.`);
+              delete item.fields[fieldName].required;
+            }
+          });
+
+          updateJson('frontend/central.ui.json', (ui) => {
+            const setModalGrid = (tab, confirm) => {
+              tab.editable = true;
+              tab.editMode = 'modal';
+              tab.delete = { enabled: true, confirm };
+            };
+
+            const project = ui.collections.find((view) => view.model === 'Projeto');
+            const projectItems = project?.detailModal?.tabs?.find((tab) => tab.id === 'itens');
+            if (!projectItems || projectItems.type !== 'relatedGrid') {
+              throw new Error('Grid relacionada Projeto.itens não encontrada.');
+            }
+            setModalGrid(projectItems, 'Excluir este item?');
+
+            const contacts = ui.collections
+              .find((view) => view.model === 'ClienteFornecedor')
+              ?.detailModal?.tabs?.find((tab) => tab.id === 'contatos');
+            if (contacts?.type === 'relatedGrid') {
+              contacts.editMode = 'modal';
+              contacts.delete = { enabled: true, confirm: 'Excluir este contato?' };
+            }
+
+            const itemPipeline = ui.pipelines.find((view) => view.model === 'ProjetoItem');
+            const payments = itemPipeline?.ticketModal?.tabs?.find((tab) => tab.id === 'pagamento');
+            if (!payments || payments.type !== 'relatedGrid') {
+              throw new Error('Grid relacionada ProjetoItem.pagamento não encontrada.');
+            }
+            setModalGrid(payments, 'Excluir este pagamento?');
+          });
+
+          replaceAllIn('scripts/validate-manifests.mjs', [
+            ['0.3.54', coreVersion],
+          ]);
+          replaceAllIn('backend/test/manifest-parity.test.js', [
+            ['0.3.54', coreVersion],
+          ]);
+          replaceAllIn('backend/test/runtime-version-contract.test.js', [
+            ['0.1.2', centralVersion],
+            ['0.3.54', coreVersion],
+          ]);
+
+          const envPath = 'backend/.env.example';
+          const env = fs.readFileSync(envPath, 'utf8').replace(/SERVICE_VERSION=.*/, `SERVICE_VERSION=${centralVersion}`);
+          fs.writeFileSync(envPath, env);
+
+          const parityPath = 'backend/test/manifest-parity.test.js';
+          const paritySource = fs.readFileSync(parityPath, 'utf8');
+          if (!paritySource.includes('localização do item é opcional')) {
+            fs.writeFileSync(parityPath, `${paritySource.trimEnd()}\n\ntest("localização do item é opcional e grids relacionadas usam ações modais", () => {\n  const item = domain.models.find((model) => model.name === "ProjetoItem");\n  assert.notEqual(item.fields.estadoId.required, true);\n  assert.notEqual(item.fields.cidadeId.required, true);\n\n  const project = ui.collections.find((view) => view.model === "Projeto");\n  const projectItems = project.detailModal.tabs.find((tab) => tab.id === "itens");\n  assert.equal(projectItems.editMode, "modal");\n  assert.equal(projectItems.delete.enabled, true);\n\n  const itemPipeline = ui.pipelines.find((view) => view.model === "ProjetoItem");\n  const payments = itemPipeline.ticketModal.tabs.find((tab) => tab.id === "pagamento");\n  assert.equal(payments.editMode, "modal");\n  assert.equal(payments.delete.enabled, true);\n});\n`);
+          }
+
+          const validationPath = 'scripts/validate-manifests.mjs';
+          const validationSource = fs.readFileSync(validationPath, 'utf8');
+          const marker = 'const requiredDomainFiles = [';
+          if (!validationSource.includes('Estado e Cidade devem ser opcionais no item')) {
+            const assertion = `const projetoItemModel = models.get("ProjetoItem");\nif (projetoItemModel.fields.estadoId.required === true || projetoItemModel.fields.cidadeId.required === true) {\n  fail("Estado e Cidade devem ser opcionais no item.");\n}\nfor (const [viewModel, tabId] of [["Projeto", "itens"], ["ProjetoItem", "pagamento"]]) {\n  const view = views.find((candidate) => candidate.model === viewModel);\n  const modal = view?.detailModal ?? view?.ticketModal;\n  const tab = modal?.tabs?.find((candidate) => candidate.id === tabId);\n  if (tab?.type !== "relatedGrid" || tab.editMode !== "modal" || tab.delete?.enabled !== true) {\n    fail(\`A grid relacionada \${viewModel}.\${tabId} deve ser somente leitura com editar/excluir por ação modal.\`);\n  }\n}\n\n`;
+            fs.writeFileSync(validationPath, validationSource.replace(marker, `${assertion}${marker}`));
+          }
+          NODE
+
+          npm install --no-audit --no-fund
+          npm install --prefix backend --no-audit --no-fund
+          npm install --prefix frontend --no-audit --no-fund
+          npm run ooncore:docs
+          npm run check
+          npm test --prefix backend
+          npm run build --prefix frontend
+
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/apply-related-grid-labels-0.3.55.yml || rm -f .github/workflows/apply-related-grid-labels-0.3.55.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração pendente."
+            exit 0
+          fi
+
+          git commit -m "fix: ajustar campos opcionais, grids e labels relacionados"
+          git pull --rebase origin fix/related-grid-labels-ooncore-0.3.55
+          git push origin HEAD:fix/related-grid-labels-ooncore-0.3.55
