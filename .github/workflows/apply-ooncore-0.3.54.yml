@@ -64,6 +64,10 @@ jobs:
             fs.writeFileSync(path, source);
           }
 
+          const runtimeTestPath = 'backend/test/runtime-version-contract.test.js';
+          const runtimeTest = fs.readFileSync(runtimeTestPath, 'utf8').replaceAll('0.1.1', '0.1.2');
+          fs.writeFileSync(runtimeTestPath, runtimeTest);
+
           const envPath = 'backend/.env.example';
           const env = fs.readFileSync(envPath, 'utf8').replace(/SERVICE_VERSION=.*/, 'SERVICE_VERSION=0.1.2');
           fs.writeFileSync(envPath, env);
