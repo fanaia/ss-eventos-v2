@@ -1,0 +1,83 @@
+name: apply-ooncore-0.3.51
+
+on:
+  push:
+    branches:
+      - fix/update-ooncore-0.3.51
+    paths:
+      - .github/trigger-ooncore-0.3.51
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/update-ooncore-0.3.51
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Update and validate OonCore 0.3.51
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for package_name in @oondemand/create-central-oon @oondemand/oon-core-back @oondemand/oon-core-front; do
+            version=$(npm view "${package_name}@0.3.51" version)
+            [[ "$version" == "0.3.51" ]] || { echo "${package_name}@0.3.51 indisponível" >&2; exit 1; }
+          done
+
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const updateDependency = (file, section, dependency) => {
+            const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+            json[section][dependency] = '0.3.51';
+            fs.writeFileSync(file, JSON.stringify(json, null, 2) + '\n');
+          };
+
+          updateDependency('package.json', 'devDependencies', '@oondemand/create-central-oon');
+          updateDependency('backend/package.json', 'dependencies', '@oondemand/oon-core-back');
+          updateDependency('frontend/package.json', 'dependencies', '@oondemand/oon-core-front');
+
+          const app = JSON.parse(fs.readFileSync('central.app.json', 'utf8'));
+          app.compatibility.core.minVersion = '0.3.51';
+          fs.writeFileSync('central.app.json', JSON.stringify(app, null, 2) + '\n');
+
+          for (const file of ['scripts/validate-manifests.mjs', 'backend/test/manifest-parity.test.js']) {
+            const current = fs.readFileSync(file, 'utf8');
+            const updated = current.replaceAll('0.3.50', '0.3.51');
+            if (updated === current) throw new Error(`Nenhuma referência 0.3.50 encontrada em ${file}`);
+            fs.writeFileSync(file, updated);
+          }
+          NODE
+
+          npm install --package-lock-only --ignore-scripts --prefix backend
+          npm install --package-lock-only --ignore-scripts --prefix frontend
+          npm install --ignore-scripts --package-lock=false
+          npm ci --ignore-scripts --prefix backend
+          npm ci --ignore-scripts --prefix frontend
+
+          npm run ooncore:docs
+          npm run check
+          npm test --prefix backend
+          npm run build --prefix frontend
+
+          rm -f .github/workflows/apply-ooncore-0.3.51.yml
+          rm -f .github/trigger-ooncore-0.3.51
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: atualizar OonCore para 0.3.51"
+          git push origin HEAD:fix/update-ooncore-0.3.51
