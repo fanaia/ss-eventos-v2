@@ -49,7 +49,7 @@ for (const capability of [
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.53";
+const expectedVersion = "0.3.54";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],

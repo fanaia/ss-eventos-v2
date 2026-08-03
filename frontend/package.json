@@ -1,6 +1,6 @@
 {
   "name": "ss-eventos-v2-frontend",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "sync:metadata": "oonCore-front sync:metadata"
   },
   "dependencies": {
-    "@oondemand/oon-core-front": "0.3.53",
+    "@oondemand/oon-core-front": "0.3.54",
     "@chakra-ui/react": "^3.13.0",
     "@emotion/react": "^11.14.0",
     "@tanstack/react-query": "^5.65.0",
