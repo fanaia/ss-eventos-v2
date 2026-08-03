@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - fix/project-create-and-contact-validation
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
