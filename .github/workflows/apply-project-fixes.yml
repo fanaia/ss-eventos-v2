@@ -1,0 +1,95 @@
+name: apply-project-fixes
+
+on:
+  push:
+    branches:
+      - fix/project-create-and-contact-validation
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/project-create-and-contact-validation
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Wait for coordinated OonCore release
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 90); do
+            if npm view @oondemand/create-central-oon@0.3.49 version >/dev/null 2>&1 \
+              && npm view @oondemand/oon-core-back@0.3.49 version >/dev/null 2>&1 \
+              && npm view @oondemand/oon-core-front@0.3.49 version >/dev/null 2>&1; then
+              echo "OonCore 0.3.49 disponível."
+              exit 0
+            fi
+            echo "Aguardando publicação do OonCore 0.3.49 (${attempt}/90)..."
+            sleep 10
+          done
+          echo "OonCore 0.3.49 não foi publicado dentro do tempo esperado." >&2
+          exit 1
+
+      - name: Update coordinated dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          function update(path, section, dependency) {
+            const json = JSON.parse(fs.readFileSync(path, "utf8"));
+            json[section][dependency] = "0.3.49";
+            fs.writeFileSync(path, `${JSON.stringify(json, null, 2)}\n`);
+          }
+
+          update("package.json", "devDependencies", "@oondemand/create-central-oon");
+          update("backend/package.json", "dependencies", "@oondemand/oon-core-back");
+          update("frontend/package.json", "dependencies", "@oondemand/oon-core-front");
+          NODE
+
+      - name: Refresh lockfiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --package-lock-only --ignore-scripts --prefix backend
+          npm install --package-lock-only --ignore-scripts --prefix frontend
+
+      - name: Install validation dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --ignore-scripts
+          npm ci --ignore-scripts --prefix backend
+          npm ci --ignore-scripts --prefix frontend
+
+      - name: Validate manifests and builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run check
+          npm test --prefix backend
+          npm run build --prefix frontend
+
+      - name: Commit generated update
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/apply-project-fixes.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json backend/package.json backend/package-lock.json frontend/package.json frontend/package-lock.json .github/workflows/apply-project-fixes.yml
+          git commit -m "fix: atualizar OonCore para corrigir criação de projetos"
+          git push origin HEAD:fix/project-create-and-contact-validation
