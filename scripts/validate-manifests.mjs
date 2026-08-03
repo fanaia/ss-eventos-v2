@@ -49,7 +49,7 @@ for (const capability of [
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.55";
+const expectedVersion = "0.3.56";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -405,7 +405,7 @@ if (JSON.stringify(actualCreateFields) !== JSON.stringify(expectedCreateFields))
 const expectedInheritance = {
   projetoId: "projetoId",
   projetoItemId: "_id",
-  valor: "pagamentoValorPendente",
+  valor: "pagamentoSaldoPlanejamento",
 };
 if (JSON.stringify(paymentTab.create.initialValuesFromParent) !== JSON.stringify(expectedInheritance)) {
   fail("A criação de pagamento deve herdar projeto, item e saldo pendente do registro pai.");
