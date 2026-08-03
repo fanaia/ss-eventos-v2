@@ -1,0 +1,48 @@
+name: refresh-f5-lockfiles
+
+on:
+  push:
+    branches:
+      - agent/f5-consume-integration-engine
+    paths:
+      - package.json
+      - backend/package.json
+      - frontend/package.json
+      - .github/workflows/refresh-f5-lockfiles.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/f5-consume-integration-engine
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Regenerate official lockfiles
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund --prefix backend
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund --prefix frontend
+
+      - name: Commit lockfiles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json backend/package-lock.json frontend/package-lock.json
+          if git diff --cached --quiet; then
+            echo "Lockfiles já estavam atualizados."
+            exit 0
+          fi
+          git commit -m "chore(v2): regenerar lockfiles oficiais da OonCore 0.3.57"
+          git push origin HEAD:agent/f5-consume-integration-engine
