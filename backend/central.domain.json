@@ -738,6 +738,11 @@
           ],
           "default": "Sem pagamento",
           "index": true
+        },
+        "pagamentoSaldoPlanejamento": {
+          "kind": "currency",
+          "label": "Saldo a programar",
+          "default": 0
         }
       }
     },

@@ -212,7 +212,10 @@
           "constraints": [
             {
               "sourceField": "tipo",
-              "in": ["Operacional", "Ambos"],
+              "in": [
+                "Operacional",
+                "Ambos"
+              ],
               "message": "O responsável selecionado não está habilitado para a operação."
             }
           ],
@@ -226,7 +229,8 @@
             "value": "Ativo",
             "message": "Selecione um estado ativo."
           },
-          "message": "Selecione um estado válido."
+          "message": "Selecione um estado válido.",
+          "required": false
         },
         {
           "field": "cidadeId",
@@ -243,7 +247,8 @@
               "message": "A cidade selecionada não pertence ao estado informado."
             }
           ],
-          "message": "Selecione uma cidade válida."
+          "message": "Selecione uma cidade válida.",
+          "required": false
         },
         {
           "field": "categoriaId",
@@ -288,7 +293,9 @@
           "sourceModel": "Projeto",
           "localField": "projetoId",
           "sourceField": "percentualFee",
-          "watchFields": ["percentualFee"],
+          "watchFields": [
+            "percentualFee"
+          ],
           "recalculate": "async",
           "default": 0
         },
@@ -298,7 +305,9 @@
           "sourceModel": "Projeto",
           "localField": "projetoId",
           "sourceField": "percentualImposto",
-          "watchFields": ["percentualImposto"],
+          "watchFields": [
+            "percentualImposto"
+          ],
           "recalculate": "async",
           "default": 0
         },
@@ -306,7 +315,9 @@
           "field": "fechamentoValor",
           "kind": "expression",
           "precision": 2,
-          "expression": { "field": "orcamentoTotal" }
+          "expression": {
+            "field": "orcamentoTotal"
+          }
         },
         {
           "field": "fechamentoFee",
@@ -318,22 +329,34 @@
               {
                 "op": "eq",
                 "args": [
-                  { "field": "faturamento" },
-                  { "value": "Agência Interna" }
+                  {
+                    "field": "faturamento"
+                  },
+                  {
+                    "value": "Agência Interna"
+                  }
                 ]
               },
-              { "value": 0 },
+              {
+                "value": 0
+              },
               {
                 "op": "divide",
                 "args": [
                   {
                     "op": "multiply",
                     "args": [
-                      { "field": "orcamentoTotal" },
-                      { "field": "percentualFeeAplicado" }
+                      {
+                        "field": "orcamentoTotal"
+                      },
+                      {
+                        "field": "percentualFeeAplicado"
+                      }
                     ]
                   },
-                  { "value": 100 }
+                  {
+                    "value": 100
+                  }
                 ]
               }
             ]
@@ -355,15 +378,23 @@
                       {
                         "op": "eq",
                         "args": [
-                          { "field": "faturamento" },
-                          { "value": "Agência" }
+                          {
+                            "field": "faturamento"
+                          },
+                          {
+                            "value": "Agência"
+                          }
                         ]
                       },
                       {
                         "op": "add",
                         "args": [
-                          { "field": "orcamentoTotal" },
-                          { "field": "fechamentoFee" }
+                          {
+                            "field": "orcamentoTotal"
+                          },
+                          {
+                            "field": "fechamentoFee"
+                          }
                         ]
                       },
                       {
@@ -372,20 +403,32 @@
                           {
                             "op": "eq",
                             "args": [
-                              { "field": "faturamento" },
-                              { "value": "Agência Interna" }
+                              {
+                                "field": "faturamento"
+                              },
+                              {
+                                "value": "Agência Interna"
+                              }
                             ]
                           },
-                          { "field": "orcamentoTotal" },
-                          { "field": "fechamentoFee" }
+                          {
+                            "field": "orcamentoTotal"
+                          },
+                          {
+                            "field": "fechamentoFee"
+                          }
                         ]
                       }
                     ]
                   },
-                  { "field": "percentualImpostoAplicado" }
+                  {
+                    "field": "percentualImpostoAplicado"
+                  }
                 ]
               },
-              { "value": 100 }
+              {
+                "value": 100
+              }
             ]
           }
         },
@@ -396,9 +439,15 @@
           "expression": {
             "op": "add",
             "args": [
-              { "field": "orcamentoTotal" },
-              { "field": "fechamentoFee" },
-              { "field": "fechamentoImposto" }
+              {
+                "field": "orcamentoTotal"
+              },
+              {
+                "field": "fechamentoFee"
+              },
+              {
+                "field": "fechamentoImposto"
+              }
             ]
           }
         },
@@ -412,11 +461,17 @@
               {
                 "op": "subtract",
                 "args": [
-                  { "field": "orcamentoTotal" },
-                  { "field": "contratacaoTotal" }
+                  {
+                    "field": "orcamentoTotal"
+                  },
+                  {
+                    "field": "contratacaoTotal"
+                  }
                 ]
               },
-              { "field": "fechamentoFee" }
+              {
+                "field": "fechamentoFee"
+              }
             ]
           }
         },
@@ -430,8 +485,12 @@
               {
                 "op": "gt",
                 "args": [
-                  { "field": "orcamentoTotal" },
-                  { "value": 0 }
+                  {
+                    "field": "orcamentoTotal"
+                  },
+                  {
+                    "value": 0
+                  }
                 ]
               },
               {
@@ -440,14 +499,22 @@
                   {
                     "op": "divide",
                     "args": [
-                      { "field": "fechamentoLucroValor" },
-                      { "field": "orcamentoTotal" }
+                      {
+                        "field": "fechamentoLucroValor"
+                      },
+                      {
+                        "field": "orcamentoTotal"
+                      }
                     ]
                   },
-                  { "value": 100 }
+                  {
+                    "value": 100
+                  }
                 ]
               },
-              { "value": 0 }
+              {
+                "value": 0
+              }
             ]
           }
         },
@@ -458,9 +525,40 @@
           "foreignField": "projetoItemId",
           "operator": "sum",
           "sourceField": "valor",
-          "match": { "canceladoNaCentral": { "neq": true } },
-          "watchFields": ["valor", "canceladoNaCentral"],
+          "match": {
+            "canceladoNaCentral": {
+              "neq": true
+            }
+          },
+          "watchFields": [
+            "valor",
+            "canceladoNaCentral"
+          ],
           "default": 0
+        },
+        {
+          "field": "pagamentoSaldoPlanejamento",
+          "kind": "expression",
+          "precision": 2,
+          "expression": {
+            "op": "max",
+            "args": [
+              {
+                "value": 0
+              },
+              {
+                "op": "subtract",
+                "args": [
+                  {
+                    "field": "contratacaoTotal"
+                  },
+                  {
+                    "field": "pagamentoTotalPlanejado"
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
           "field": "pagamentoTotalPago",
@@ -469,8 +567,15 @@
           "foreignField": "projetoItemId",
           "operator": "sum",
           "sourceField": "omieValorPago",
-          "match": { "canceladoNaCentral": { "neq": true } },
-          "watchFields": ["omieValorPago", "canceladoNaCentral"],
+          "match": {
+            "canceladoNaCentral": {
+              "neq": true
+            }
+          },
+          "watchFields": [
+            "omieValorPago",
+            "canceladoNaCentral"
+          ],
           "default": 0
         },
         {
@@ -480,12 +585,18 @@
           "expression": {
             "op": "max",
             "args": [
-              { "value": 0 },
+              {
+                "value": 0
+              },
               {
                 "op": "subtract",
                 "args": [
-                  { "field": "contratacaoTotal" },
-                  { "field": "pagamentoTotalPago" }
+                  {
+                    "field": "contratacaoTotal"
+                  },
+                  {
+                    "field": "pagamentoTotalPago"
+                  }
                 ]
               }
             ]
@@ -498,10 +609,15 @@
           "foreignField": "projetoItemId",
           "operator": "count",
           "match": {
-            "canceladoNaCentral": { "neq": true },
+            "canceladoNaCentral": {
+              "neq": true
+            },
             "omieStatusIntegracao": "Erro"
           },
-          "watchFields": ["omieStatusIntegracao", "canceladoNaCentral"],
+          "watchFields": [
+            "omieStatusIntegracao",
+            "canceladoNaCentral"
+          ],
           "default": 0
         },
         {
@@ -511,10 +627,20 @@
           "foreignField": "projetoItemId",
           "operator": "count",
           "match": {
-            "canceladoNaCentral": { "neq": true },
-            "etapa": { "in": ["Enviado para Omie", "Pagamento Ok"] }
+            "canceladoNaCentral": {
+              "neq": true
+            },
+            "etapa": {
+              "in": [
+                "Enviado para Omie",
+                "Pagamento Ok"
+              ]
+            }
           },
-          "watchFields": ["etapa", "canceladoNaCentral"],
+          "watchFields": [
+            "etapa",
+            "canceladoNaCentral"
+          ],
           "default": 0
         },
         {
@@ -526,28 +652,42 @@
               {
                 "op": "gt",
                 "args": [
-                  { "field": "pagamentoTotalPlanejado" },
+                  {
+                    "field": "pagamentoTotalPlanejado"
+                  },
                   {
                     "op": "add",
                     "args": [
-                      { "field": "contratacaoTotal" },
-                      { "value": 0.01 }
+                      {
+                        "field": "contratacaoTotal"
+                      },
+                      {
+                        "value": 0.01
+                      }
                     ]
                   }
                 ]
               },
-              { "value": "Divergência" },
+              {
+                "value": "Divergência"
+              },
               {
                 "op": "if",
                 "args": [
                   {
                     "op": "gt",
                     "args": [
-                      { "field": "pagamentoStatus" },
-                      { "value": 0 }
+                      {
+                        "field": "pagamentoStatus"
+                      },
+                      {
+                        "value": 0
+                      }
                     ]
                   },
-                  { "value": "Erro de integração" },
+                  {
+                    "value": "Erro de integração"
+                  },
                   {
                     "op": "if",
                     "args": [
@@ -557,54 +697,84 @@
                           {
                             "op": "lte",
                             "args": [
-                              { "field": "pagamentoValorPendente" },
-                              { "value": 0.01 }
+                              {
+                                "field": "pagamentoValorPendente"
+                              },
+                              {
+                                "value": 0.01
+                              }
                             ]
                           },
                           {
                             "op": "gt",
                             "args": [
-                              { "field": "contratacaoTotal" },
-                              { "value": 0 }
+                              {
+                                "field": "contratacaoTotal"
+                              },
+                              {
+                                "value": 0
+                              }
                             ]
                           }
                         ]
                       },
-                      { "value": "Pago" },
+                      {
+                        "value": "Pago"
+                      },
                       {
                         "op": "if",
                         "args": [
                           {
                             "op": "gt",
                             "args": [
-                              { "field": "pagamentoTotalPago" },
-                              { "value": 0 }
+                              {
+                                "field": "pagamentoTotalPago"
+                              },
+                              {
+                                "value": 0
+                              }
                             ]
                           },
-                          { "value": "Parcialmente pago" },
+                          {
+                            "value": "Parcialmente pago"
+                          },
                           {
                             "op": "if",
                             "args": [
                               {
                                 "op": "gt",
                                 "args": [
-                                  { "field": "pagamentoResumo" },
-                                  { "value": 0 }
+                                  {
+                                    "field": "pagamentoResumo"
+                                  },
+                                  {
+                                    "value": 0
+                                  }
                                 ]
                               },
-                              { "value": "Enviado ao Omie" },
+                              {
+                                "value": "Enviado ao Omie"
+                              },
                               {
                                 "op": "if",
                                 "args": [
                                   {
                                     "op": "gt",
                                     "args": [
-                                      { "field": "pagamentoTotalPlanejado" },
-                                      { "value": 0 }
+                                      {
+                                        "field": "pagamentoTotalPlanejado"
+                                      },
+                                      {
+                                        "value": 0
+                                      }
                                     ]
                                   },
-                                  { "value": "Pagamento pendente" },
-                                  { "value": "Sem pagamento" }
+                                  {
+                                    "value": "Pagamento pendente"
+                                  },
+                                  {
+                                    "value": "Sem pagamento"
+                                  }
                                 ]
                               }
                             ]
@@ -627,21 +797,35 @@
               {
                 "op": "eq",
                 "args": [
-                  { "field": "pagamentoStatus" },
-                  { "value": "Pago" }
+                  {
+                    "field": "pagamentoStatus"
+                  },
+                  {
+                    "value": "Pago"
+                  }
                 ]
               },
-              { "value": "Pago" },
+              {
+                "value": "Pago"
+              },
               {
                 "op": "concat",
                 "args": [
-                  { "value": "Pendente: " },
+                  {
+                    "value": "Pendente: "
+                  },
                   {
                     "op": "formatCurrency",
                     "args": [
-                      { "field": "pagamentoValorPendente" },
-                      { "value": "BRL" },
-                      { "value": "pt-BR" }
+                      {
+                        "field": "pagamentoValorPendente"
+                      },
+                      {
+                        "value": "BRL"
+                      },
+                      {
+                        "value": "pt-BR"
+                      }
                     ]
                   }
                 ]
@@ -693,7 +877,10 @@
           "constraints": [
             {
               "sourceField": "tipo",
-              "in": ["Pagamento", "Ambos"],
+              "in": [
+                "Pagamento",
+                "Ambos"
+              ],
               "message": "O responsável selecionado não está habilitado para pagamentos."
             }
           ],
@@ -703,21 +890,39 @@
       "workflow": {
         "stageField": "etapa",
         "defaultStage": "Solicitado",
-        "initialStages": ["Solicitado"],
+        "initialStages": [
+          "Solicitado"
+        ],
         "initialStageMessage": "O pagamento deve iniciar em uma etapa manual.",
         "transitions": [
-          { "from": "Solicitado", "to": "Aprovado" },
-          { "from": "Aprovado", "to": "Solicitado" },
-          { "from": "Aprovado", "to": "Aguardando NF" },
-          { "from": "Aguardando NF", "to": "Aprovado" },
+          {
+            "from": "Solicitado",
+            "to": "Aprovado"
+          },
+          {
+            "from": "Aprovado",
+            "to": "Solicitado"
+          },
+          {
+            "from": "Aprovado",
+            "to": "Aguardando NF"
+          },
+          {
+            "from": "Aguardando NF",
+            "to": "Aprovado"
+          },
           {
             "from": "Aguardando NF",
             "to": "Enviado para Omie",
             "when": {
               "op": "eq",
               "args": [
-                { "field": "nfRecebida" },
-                { "value": true }
+                {
+                  "field": "nfRecebida"
+                },
+                {
+                  "value": true
+                }
               ]
             },
             "message": "Confirme o recebimento da NF antes de enviar o pagamento ao Omie."
@@ -758,7 +963,9 @@
           },
           {
             "stage": "Pagamento Ok",
-            "set": { "statusTrabalho": "Trabalhando" }
+            "set": {
+              "statusTrabalho": "Trabalhando"
+            }
           }
         ],
         "automaticTransitions": [
@@ -766,12 +973,18 @@
             "when": {
               "op": "eq",
               "args": [
-                { "field": "omieLiquidado" },
-                { "value": true }
+                {
+                  "field": "omieLiquidado"
+                },
+                {
+                  "value": true
+                }
               ]
             },
             "to": "Pagamento Ok",
-            "set": { "statusTrabalho": "Trabalhando" }
+            "set": {
+              "statusTrabalho": "Trabalhando"
+            }
           }
         ]
       },
@@ -783,8 +996,12 @@
           "expression": {
             "op": "coalesce",
             "args": [
-              { "field": "valor" },
-              { "value": 0 }
+              {
+                "field": "valor"
+              },
+              {
+                "value": 0
+              }
             ]
           }
         },
@@ -795,12 +1012,18 @@
           "expression": {
             "op": "max",
             "args": [
-              { "value": 0 },
+              {
+                "value": 0
+              },
               {
                 "op": "subtract",
                 "args": [
-                  { "field": "valor" },
-                  { "field": "omieValorPago" }
+                  {
+                    "field": "valor"
+                  },
+                  {
+                    "field": "omieValorPago"
+                  }
                 ]
               }
             ]
@@ -812,22 +1035,32 @@
           "expression": {
             "op": "or",
             "args": [
-              { "field": "omieLiquidado" },
+              {
+                "field": "omieLiquidado"
+              },
               {
                 "op": "and",
                 "args": [
                   {
                     "op": "gt",
                     "args": [
-                      { "field": "valor" },
-                      { "value": 0 }
+                      {
+                        "field": "valor"
+                      },
+                      {
+                        "value": 0
+                      }
                     ]
                   },
                   {
                     "op": "lte",
                     "args": [
-                      { "field": "omieValorPendente" },
-                      { "value": 0.01 }
+                      {
+                        "field": "omieValorPendente"
+                      },
+                      {
+                        "value": 0.01
+                      }
                     ]
                   }
                 ]
@@ -847,8 +1080,12 @@
                   {
                     "op": "eq",
                     "args": [
-                      { "field": "etapa" },
-                      { "value": "Enviado para Omie" }
+                      {
+                        "field": "etapa"
+                      },
+                      {
+                        "value": "Enviado para Omie"
+                      }
                     ]
                   },
                   {
@@ -857,20 +1094,33 @@
                       {
                         "op": "in",
                         "args": [
-                          { "field": "omieStatusIntegracao" },
-                          { "value": ["Enviado", "Cancelado"] }
+                          {
+                            "field": "omieStatusIntegracao"
+                          },
+                          {
+                            "value": [
+                              "Enviado",
+                              "Cancelado"
+                            ]
+                          }
                         ]
                       }
                     ]
                   }
                 ]
               },
-              { "value": "Pendente" },
+              {
+                "value": "Pendente"
+              },
               {
                 "op": "coalesce",
                 "args": [
-                  { "field": "omieStatusIntegracao" },
-                  { "value": "Não enviado" }
+                  {
+                    "field": "omieStatusIntegracao"
+                  },
+                  {
+                    "value": "Não enviado"
+                  }
                 ]
               }
             ]
@@ -885,7 +1135,11 @@
           "parentLocalField": "projetoItemId",
           "sourceField": "valor",
           "parentField": "contratacaoTotal",
-          "match": { "canceladoNaCentral": { "neq": true } },
+          "match": {
+            "canceladoNaCentral": {
+              "neq": true
+            }
+          },
           "tolerance": 0.01,
           "code": "PAGAMENTO_ACIMA_CONTRATADO",
           "message": "A soma dos pagamentos ({total}) não pode ultrapassar o valor contratado do item ({limit})."
