@@ -49,7 +49,7 @@ for (const capability of [
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.54";
+const expectedVersion = "0.3.55";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -351,6 +351,19 @@ for (const modelName of expectedModels.filter((name) => !["ProjetoItem", "Pagame
 for (const pipelineName of ["ProjetoItem", "Pagamento"]) {
   if (!(ui.pipelines ?? []).some((pipeline) => pipeline.model === pipelineName)) {
     fail(`Esteira obrigatória ausente: ${pipelineName}.`);
+  }
+}
+
+const projetoItemModel = models.get("ProjetoItem");
+if (projetoItemModel.fields.estadoId.required === true || projetoItemModel.fields.cidadeId.required === true) {
+  fail("Estado e Cidade devem ser opcionais no item.");
+}
+for (const [viewModel, tabId] of [["Projeto", "itens"], ["ProjetoItem", "pagamento"]]) {
+  const view = views.find((candidate) => candidate.model === viewModel);
+  const modal = view?.detailModal ?? view?.ticketModal;
+  const tab = modal?.tabs?.find((candidate) => candidate.id === tabId);
+  if (tab?.type !== "relatedGrid" || tab.editMode !== "modal" || tab.delete?.enabled !== true) {
+    fail(`A grid relacionada ${viewModel}.${tabId} deve ser somente leitura com editar/excluir por ação modal.`);
   }
 }
 
