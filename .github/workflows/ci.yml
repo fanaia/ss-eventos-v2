@@ -68,6 +68,11 @@ jobs:
               'Projeto usa o OonCore 0.3.53 com identificação de versão do runtime',
             );
           fs.writeFileSync(testPath, test);
+
+          const validationPath = 'scripts/validate-manifests.mjs';
+          const validation = fs.readFileSync(validationPath, 'utf8')
+            .replaceAll('0.3.52', '0.3.53');
+          fs.writeFileSync(validationPath, validation);
           NODE
 
           npm install --no-audit --no-fund
