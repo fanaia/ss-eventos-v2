@@ -1,6 +1,6 @@
 {
   "name": "ss-eventos-v2",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Central SS Eventos V2 reconstruída de forma declarativa sobre o OonCore.",
   "scripts": {
@@ -14,6 +14,6 @@
     "dev:frontend": "npm run dev --prefix frontend"
   },
   "devDependencies": {
-    "@oondemand/create-central-oon": "0.3.53"
+    "@oondemand/create-central-oon": "0.3.54"
   }
 }
