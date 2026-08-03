@@ -45,22 +45,41 @@ jobs:
           echo "OonCore 0.3.49 não foi publicado dentro do tempo esperado." >&2
           exit 1
 
-      - name: Update coordinated dependencies
+      - name: Update coordinated dependencies and compatibility
         shell: bash
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs = require("node:fs");
 
-          function update(path, section, dependency) {
-            const json = JSON.parse(fs.readFileSync(path, "utf8"));
-            json[section][dependency] = "0.3.49";
+          function read(path) {
+            return JSON.parse(fs.readFileSync(path, "utf8"));
+          }
+
+          function write(path, json) {
             fs.writeFileSync(path, `${JSON.stringify(json, null, 2)}\n`);
           }
 
-          update("package.json", "devDependencies", "@oondemand/create-central-oon");
-          update("backend/package.json", "dependencies", "@oondemand/oon-core-back");
-          update("frontend/package.json", "dependencies", "@oondemand/oon-core-front");
+          const rootPackage = read("package.json");
+          rootPackage.devDependencies["@oondemand/create-central-oon"] = "0.3.49";
+          write("package.json", rootPackage);
+
+          const backendPackage = read("backend/package.json");
+          backendPackage.dependencies["@oondemand/oon-core-back"] = "0.3.49";
+          write("backend/package.json", backendPackage);
+
+          const frontendPackage = read("frontend/package.json");
+          frontendPackage.dependencies["@oondemand/oon-core-front"] = "0.3.49";
+          write("frontend/package.json", frontendPackage);
+
+          const app = read("central.app.json");
+          app.compatibility.core.minVersion = "0.3.49";
+          write("central.app.json", app);
+
+          const validatorPath = "scripts/validate-manifests.mjs";
+          const validator = fs.readFileSync(validatorPath, "utf8")
+            .replace('const expectedVersion = "0.3.47";', 'const expectedVersion = "0.3.49";');
+          fs.writeFileSync(validatorPath, validator);
           NODE
 
       - name: Refresh lockfiles
@@ -78,6 +97,12 @@ jobs:
           npm ci --ignore-scripts --prefix backend
           npm ci --ignore-scripts --prefix frontend
 
+      - name: Synchronize OonCore documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run ooncore:docs
+
       - name: Validate manifests and builds
         shell: bash
         run: |
@@ -93,6 +118,6 @@ jobs:
           rm .github/workflows/apply-project-fixes.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json backend/package.json backend/package-lock.json frontend/package.json frontend/package-lock.json .github/workflows/apply-project-fixes.yml
+          git add package.json central.app.json scripts/validate-manifests.mjs backend/package.json backend/package-lock.json frontend/package.json frontend/package-lock.json .ooncore .github/workflows/apply-project-fixes.yml
           git commit -m "fix: atualizar OonCore para corrigir criação de projetos"
           git push origin HEAD:fix/project-create-and-contact-validation
