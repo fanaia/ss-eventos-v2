@@ -11,6 +11,83 @@ permissions:
   contents: read
 
 jobs:
+  apply-runtime-version-info:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/runtime-version-info'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout update branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/runtime-version-info
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Update Central and validate runtime version information
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          function updateJson(path, update) {
+            const payload = JSON.parse(fs.readFileSync(path, 'utf8'));
+            update(payload);
+            fs.writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
+          }
+
+          updateJson('package.json', (payload) => {
+            payload.version = '0.1.1';
+            payload.devDependencies['@oondemand/create-central-oon'] = '0.3.53';
+          });
+          updateJson('backend/package.json', (payload) => {
+            payload.version = '0.1.1';
+            payload.dependencies['@oondemand/oon-core-back'] = '0.3.53';
+          });
+          updateJson('frontend/package.json', (payload) => {
+            payload.version = '0.1.1';
+            payload.dependencies['@oondemand/oon-core-front'] = '0.3.53';
+          });
+          updateJson('central.app.json', (payload) => {
+            payload.compatibility.core.minVersion = '0.3.53';
+          });
+
+          const testPath = 'backend/test/manifest-parity.test.js';
+          let test = fs.readFileSync(testPath, 'utf8');
+          test = test
+            .replaceAll('0.3.52', '0.3.53')
+            .replace(
+              'Projeto usa o OonCore 0.3.53 com correções de formulário multiaaba',
+              'Projeto usa o OonCore 0.3.53 com identificação de versão do runtime',
+            );
+          fs.writeFileSync(testPath, test);
+          NODE
+
+          npm install --no-audit --no-fund
+          npm install --prefix backend --no-audit --no-fund
+          npm install --prefix frontend --no-audit --no-fund
+          npm run ooncore:docs
+          npm run check
+          npm test --prefix backend
+          npm run build --prefix frontend
+
+          git fetch origin main
+          git checkout origin/main -- .github/workflows/ci.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: exibir versões e identificação da publicação"
+          git pull --rebase origin feat/runtime-version-info
+          git push origin HEAD:feat/runtime-version-info
+
   static-contract:
     runs-on: ubuntu-latest
     steps:
