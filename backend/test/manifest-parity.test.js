@@ -9,6 +9,10 @@ const root = path.resolve(__dirname, "../..");
 const domain = JSON.parse(fs.readFileSync(path.join(root, "backend/central.domain.json"), "utf8"));
 const processManifest = JSON.parse(fs.readFileSync(path.join(root, "backend/central.process.json"), "utf8"));
 const ui = JSON.parse(fs.readFileSync(path.join(root, "frontend/central.ui.json"), "utf8"));
+const app = JSON.parse(fs.readFileSync(path.join(root, "central.app.json"), "utf8"));
+const rootPackage = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+const backendPackage = JSON.parse(fs.readFileSync(path.join(root, "backend/package.json"), "utf8"));
+const frontendPackage = JSON.parse(fs.readFileSync(path.join(root, "frontend/package.json"), "utf8"));
 
 test("declara todas as models e views da SS Eventos", () => {
   const expected = [
@@ -134,4 +138,29 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.Pagamento.references.length >= 3);
   assert.ok(processManifest.models.ClienteFornecedor.deleteProtection.length >= 3);
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
+});
+
+test("Projeto usa o contrato corrigido do OonCore 0.3.49", () => {
+  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.49");
+  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.49");
+  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.49");
+  assert.equal(app.compatibility.core.minVersion, "0.3.49");
+
+  const projetoView = ui.collections.find((view) => view.model === "Projeto");
+  assert.equal(projetoView.detailModal.defaultTab, "resumo");
+  assert.equal(
+    projetoView.detailModal.tabs.find((tab) => tab.type === "form")?.id,
+    "dados",
+  );
+
+  const contatoReference = processManifest.models.Projeto.references
+    .find((reference) => reference.field === "contatoPrincipalId");
+  assert.equal(contatoReference.sourceModel, "Contato");
+  assert.deepEqual(contatoReference.constraints, [
+    {
+      sourceField: "clienteFornecedorId",
+      equalsField: "clienteId",
+      message: "O contato principal deve pertencer ao cliente selecionado.",
+    },
+  ]);
 });
