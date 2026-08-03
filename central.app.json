@@ -9,7 +9,7 @@
     "collections": true,
     "documents": false,
     "pipelines": true,
-    "integrations": false,
+    "integrations": true,
     "omie": false,
     "assistants": false,
     "currencies": false
@@ -17,12 +17,13 @@
   "capabilities": [
     "core.collections",
     "core.pipelines",
+    "core.integrations",
     "domain.computed-fields",
     "ui.related-grid.parent-defaults"
   ],
   "compatibility": {
     "core": {
-      "minVersion": "0.3.56",
+      "minVersion": "0.3.57",
       "maxVersionExclusive": "0.4.0"
     }
   },

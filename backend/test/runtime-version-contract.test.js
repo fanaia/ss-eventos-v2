@@ -19,8 +19,8 @@ test("Central publica versões identificáveis do aplicativo e do OonCore", () =
   assert.equal(central.version, "0.1.4");
   assert.equal(backend.version, central.version);
   assert.equal(frontend.version, central.version);
-  assert.equal(central.devDependencies["@oondemand/create-central-oon"], "0.3.56");
-  assert.equal(backend.dependencies["@oondemand/oon-core-back"], "0.3.56");
-  assert.equal(frontend.dependencies["@oondemand/oon-core-front"], "0.3.56");
-  assert.equal(app.compatibility.core.minVersion, "0.3.56");
+  assert.equal(central.devDependencies["@oondemand/create-central-oon"], "0.3.57");
+  assert.equal(backend.dependencies["@oondemand/oon-core-back"], "0.3.57");
+  assert.equal(frontend.dependencies["@oondemand/oon-core-front"], "0.3.57");
+  assert.equal(app.compatibility.core.minVersion, "0.3.57");
 });

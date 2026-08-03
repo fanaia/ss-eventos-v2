@@ -8,11 +8,13 @@
     "start": "oonCore-back start",
     "test": "node --test",
     "activate": "oonCore-back activate",
+    "integration:worker": "oonCore-integration-worker",
+    "integration:worker:once": "oonCore-integration-worker --once",
     "build:image": "oonCore-back build:image",
     "k8s:render": "oonCore-back k8s:render",
     "deploy": "oonCore-back deploy"
   },
   "dependencies": {
-    "@oondemand/oon-core-back": "0.3.56"
+    "@oondemand/oon-core-back": "0.3.57"
   }
 }

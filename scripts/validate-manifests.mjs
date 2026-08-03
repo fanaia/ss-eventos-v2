@@ -37,19 +37,23 @@ if (app.appKind !== "member-central") fail("SS Eventos V2 deve usar appKind memb
 if (app.modules?.collections !== true || app.modules?.pipelines !== true) {
   fail("SS Eventos V2 deve habilitar collections e pipelines no central.app.json.");
 }
-if (app.modules?.integrations !== false || app.modules?.omie !== false) {
-  fail("Integrações e Omie devem continuar desabilitados até a abstração no OonCore.");
+if (app.modules?.integrations !== true) {
+  fail("SS Eventos V2 deve habilitar a engine nativa de integrações do OonCore.");
+}
+if (app.modules?.omie !== false) {
+  fail("O adaptador Omie deve permanecer desabilitado até a Fase 6.");
 }
 for (const capability of [
   "core.collections",
   "core.pipelines",
+  "core.integrations",
   "domain.computed-fields",
   "ui.related-grid.parent-defaults",
 ]) {
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.56";
+const expectedVersion = "0.3.57";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],

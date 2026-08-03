@@ -2,7 +2,7 @@
 
 Reconstrução declarativa da Central SS Eventos sobre o OonCore.
 
-A V2 comprova que navegação, coleções, esteiras, formulários, abas, grids relacionados, cálculos e regras específicas do negócio podem existir sem copiar shell, autenticação, páginas genéricas ou infraestrutura do Core.
+A V2 comprova que navegação, coleções, esteiras, formulários, abas, grids relacionados, cálculos, regras específicas do negócio e operação de integrações podem existir sem copiar shell, autenticação, páginas genéricas ou infraestrutura técnica do Core.
 
 ## Fronteira arquitetural
 
@@ -18,17 +18,19 @@ A Central declara somente:
 
 `backend/central.config.js` não contém identidade nem autenticação. `frontend/src/main.tsx` apenas importa os dois manifestos e chama `startCentralFromManifest`.
 
+A engine de integrações pertence ao OonCore. Não existem na V2 models técnicos, outbox, inbox, runtime, rotas operacionais, worker por timer ou página local de integrações.
+
 ## Versão-alvo
 
-Os três pacotes estão fixados exatamente em `0.3.45`:
+Os três pacotes estão fixados exatamente em `0.3.57`:
 
 - `@oondemand/create-central-oon`;
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
 
-A versão `0.3.45` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
+A versão `0.3.57` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
 
-A versão introduz `central.app.json`, bootstrap estrito, autenticação local fornecida pelo Core e o gate `create-central-oon conformance`.
+Além dos contratos declarativos anteriores, essa versão fornece a engine genérica de integrações, página operacional nativa e o executável separado `oonCore-integration-worker`.
 
 ## Identidade e capabilities
 
@@ -41,19 +43,45 @@ A fonte única da identidade é `central.app.json`:
   "modules": {
     "collections": true,
     "pipelines": true,
-    "integrations": false,
+    "integrations": true,
     "omie": false
   },
   "capabilities": [
     "core.collections",
     "core.pipelines",
+    "core.integrations",
     "domain.computed-fields",
     "ui.related-grid.parent-defaults"
   ]
 }
 ```
 
-Integrações e Omie permanecem desabilitados até que a engine e o adaptador nativos estejam disponíveis no OonCore.
+A capability `core.integrations` habilita a página e as APIs operacionais padrão do Core. O adaptador Omie permanece desabilitado até a implementação da Fase 6; esta mudança não adiciona cliente HTTP, mapping ou regra Omie local.
+
+## Engine de integrações
+
+A infraestrutura consumida da OonCore inclui:
+
+- provider registry e catálogo de recursos;
+- outbox persistente e idempotente;
+- inbox idempotente para webhooks;
+- histórico de execução sanitizado;
+- lock por lease e heartbeat;
+- retry e classificação de erro;
+- arquivamento e reprocessamento;
+- página operacional nativa em `/integracoes`;
+- worker separado do servidor web.
+
+Para desenvolvimento ou execução isolada do worker:
+
+```bash
+npm run integration:worker --prefix backend
+npm run integration:worker:once --prefix backend
+```
+
+Em ambiente publicado, o worker deve ser executado por processo ou Deployment separado do backend web. A declaração e reconciliação desse workload pertencem à camada de delivery/infraestrutura.
+
+Enquanto `omie` estiver desabilitado, a página de Integrações pode ser exibida sem provider registrado e não executa chamadas externas.
 
 ## Domínio declarado
 
@@ -105,17 +133,16 @@ A criação de pagamento está integralmente declarada em `central.ui.json`:
 
 ## Limite desta fase
 
-Não existem na V2:
+A V2 consome a engine genérica, mas ainda não registra um provider de negócio. Permanecem fora desta fase:
 
-- outbox/inbox;
-- histórico técnico de execução;
-- worker;
-- lock e retry;
-- rotas técnicas;
+- configuração e credenciais Omie;
 - cliente HTTP Omie;
-- models técnicos da integração.
+- cadastros mestres Omie;
+- envio e reconciliação de Contas a Pagar;
+- webhook financeiro Omie;
+- mappings entre o domínio SS Eventos e o Omie.
 
-Esses recursos deverão ser incorporados ao OonCore antes da ativação real da integração.
+Esses recursos pertencem ao adaptador nativo da Fase 6.
 
 ## Referência da Fase 0
 
@@ -140,6 +167,6 @@ npm ci --prefix frontend
 npm run build --prefix frontend
 ```
 
-O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers, clients Omie e patches de Mongoose.
+O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers locais, clients Omie e patches de Mongoose.
 
 O roteiro funcional está em [`docs/HOMOLOGACAO_PARIDADE.md`](docs/HOMOLOGACAO_PARIDADE.md).
