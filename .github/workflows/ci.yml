@@ -28,7 +28,7 @@ jobs:
       - name: Check backend extension boundary
         run: node -e "require('./backend/central.config.js')"
 
-  published-baseline:
+  central:
     needs: static-contract
     runs-on: ubuntu-latest
     steps:
@@ -41,25 +41,23 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Install published root baseline
-        run: npm install @oondemand/create-central-oon@0.3.45 --no-save --package-lock=false --no-audit --no-fund
+      - name: Install published root toolchain
+        run: npm install --no-audit --no-fund
 
-      - name: Validate OonCore documentation baseline
+      - name: Validate OonCore documentation
         run: npm run ooncore:docs:check
 
-      - name: Validate manifests and reference baseline
-        run: |
-          npm run check:manifests
-          npm run baseline:check
+      - name: Validate manifests, baseline and conformance
+        run: npm run check
 
-      - name: Install published backend baseline
-        run: npm install @oondemand/oon-core-back@0.3.45 --prefix backend --no-save --package-lock=false --no-audit --no-fund
+      - name: Install backend reproducibly
+        run: npm ci --prefix backend --no-audit --no-fund
 
-      - name: Test backend-specific rules
+      - name: Test backend domain
         run: npm test --prefix backend
 
-      - name: Install published frontend baseline
-        run: npm install @oondemand/oon-core-front@0.3.45 --prefix frontend --no-save --package-lock=false --no-audit --no-fund
+      - name: Install frontend reproducibly
+        run: npm ci --prefix frontend --no-audit --no-fund
 
-      - name: Build frontend baseline
+      - name: Build frontend
         run: npm run build --prefix frontend
