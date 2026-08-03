@@ -405,7 +405,7 @@ if (JSON.stringify(actualCreateFields) !== JSON.stringify(expectedCreateFields))
 const expectedInheritance = {
   projetoId: "projetoId",
   projetoItemId: "_id",
-  valor: "pagamentoValorPendente",
+  valor: "pagamentoSaldoPlanejamento",
 };
 if (JSON.stringify(paymentTab.create.initialValuesFromParent) !== JSON.stringify(expectedInheritance)) {
   fail("A criação de pagamento deve herdar projeto, item e saldo pendente do registro pai.");
