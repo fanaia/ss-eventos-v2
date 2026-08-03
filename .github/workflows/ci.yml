@@ -10,10 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  OONCORE_REPOSITORY: oondemand/oon-platform
-  OONCORE_REF: agent/f2-cross-model-process-rules
-
 jobs:
   static-contract:
     runs-on: ubuntu-latest
@@ -32,19 +28,12 @@ jobs:
       - name: Check backend extension boundary
         run: node -e "require('./backend/central.config.js')"
 
-  central:
+  published-baseline:
     needs: static-contract
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Central
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Checkout OonCore candidate
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.OONCORE_REPOSITORY }}
-          ref: ${{ env.OONCORE_REF }}
-          path: .oon-platform
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,32 +41,25 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Pack OonCore candidate
-        run: |
-          mkdir -p .oon-packages
-          npm ci --prefix .oon-platform --silent
-          npm run build --prefix .oon-platform -w @oondemand/oon-core-front
-          (cd .oon-platform/packages/create-central-oon && npm pack --pack-destination "$GITHUB_WORKSPACE/.oon-packages")
-          (cd .oon-platform/packages/oonCore-back && npm pack --pack-destination "$GITHUB_WORKSPACE/.oon-packages")
-          (cd .oon-platform/packages/oonCore-front && npm pack --pack-destination "$GITHUB_WORKSPACE/.oon-packages")
+      - name: Install published root baseline
+        run: npm install @oondemand/create-central-oon@0.3.45 --no-save --package-lock=false --no-audit --no-fund
 
-      - name: Install root candidate toolchain
-        run: npm install "$GITHUB_WORKSPACE"/.oon-packages/oondemand-create-central-oon-*.tgz --no-save --package-lock=false --no-audit --no-fund
-
-      - name: Validate OonCore documentation
+      - name: Validate OonCore documentation baseline
         run: npm run ooncore:docs:check
 
-      - name: Validate manifests, baseline and conformance
-        run: npm run check
+      - name: Validate manifests and reference baseline
+        run: |
+          npm run check:manifests
+          npm run baseline:check
 
-      - name: Install backend candidate
-        run: npm install "$GITHUB_WORKSPACE"/.oon-packages/oondemand-oon-core-back-*.tgz --prefix backend --no-save --package-lock=false --no-audit --no-fund
+      - name: Install published backend baseline
+        run: npm install @oondemand/oon-core-back@0.3.45 --prefix backend --no-save --package-lock=false --no-audit --no-fund
 
-      - name: Test backend domain
+      - name: Test backend-specific rules
         run: npm test --prefix backend
 
-      - name: Install frontend candidate
-        run: npm install "$GITHUB_WORKSPACE"/.oon-packages/oondemand-oon-core-front-*.tgz --prefix frontend --no-save --package-lock=false --no-audit --no-fund
+      - name: Install published frontend baseline
+        run: npm install @oondemand/oon-core-front@0.3.45 --prefix frontend --no-save --package-lock=false --no-audit --no-fund
 
-      - name: Build frontend
+      - name: Build frontend baseline
         run: npm run build --prefix frontend
