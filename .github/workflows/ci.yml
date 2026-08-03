@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Validate app, domain and UI manifests
+      - name: Validate app, domain, process and UI manifests
         run: node scripts/validate-manifests.mjs
 
       - name: Check backend extension boundary
@@ -41,7 +41,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Install root toolchain
+      - name: Install published root toolchain
         run: npm install --no-audit --no-fund
 
       - name: Validate OonCore documentation

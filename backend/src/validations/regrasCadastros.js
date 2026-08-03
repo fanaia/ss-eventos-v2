@@ -2,7 +2,6 @@
 
 const {
   defineValidation,
-  registry,
   GenericError,
 } = require("@oondemand/oon-core-back");
 const {
@@ -10,12 +9,6 @@ const {
   cnpjValido,
   emailValido,
 } = require("../services/documentos");
-
-function model(nome) {
-  const Model = registry.getModel(nome)?.mongooseModel;
-  if (!Model) throw new GenericError(`Model ${nome} não registrada.`, { statusCode: 500 });
-  return Model;
-}
 
 function erroCampo(field, message, statusCode = 422) {
   throw new GenericError(message, {
@@ -56,13 +49,5 @@ defineValidation("Categoria", async (dados, contexto) => {
   const id = contexto?.id ?? dados?._id;
   if (id && dados.categoriaPaiId && String(id) === String(dados.categoriaPaiId)) {
     erroCampo("categoriaPaiId", "Uma categoria não pode ser sua própria categoria pai.");
-  }
-});
-
-defineValidation("Cidade", async (dados) => {
-  if (!dados.estadoId) return;
-  const estado = await model("Estado").findById(dados.estadoId).lean();
-  if (!estado || estado.status === "Inativo") {
-    erroCampo("estadoId", "Selecione um estado ativo para a cidade.");
   }
 });
