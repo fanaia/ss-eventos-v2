@@ -65,7 +65,9 @@ jobs:
           }
 
           const runtimeTestPath = 'backend/test/runtime-version-contract.test.js';
-          const runtimeTest = fs.readFileSync(runtimeTestPath, 'utf8').replaceAll('0.1.1', '0.1.2');
+          const runtimeTest = fs.readFileSync(runtimeTestPath, 'utf8')
+            .replaceAll('0.1.1', '0.1.2')
+            .replaceAll('0.3.53', '0.3.54');
           fs.writeFileSync(runtimeTestPath, runtimeTest);
 
           const envPath = 'backend/.env.example';
