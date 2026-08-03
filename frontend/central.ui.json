@@ -165,7 +165,7 @@
             "type": "relatedGrid",
             "relation": "contatos",
             "editable": true,
-            "editMode": "inline",
+            "editMode": "modal",
             "create": {
               "enabled": true,
               "label": "Novo contato",
@@ -487,7 +487,7 @@
             "type": "relatedGrid",
             "relation": "itens",
             "editable": true,
-            "editMode": "inline",
+            "editMode": "modal",
             "create": {
               "enabled": true,
               "label": "Novo item",
@@ -574,7 +574,11 @@
                 "readonly": true,
                 "format": "currency"
               }
-            ]
+            ],
+            "delete": {
+              "enabled": true,
+              "confirm": "Excluir este item?"
+            }
           },
           {
             "id": "pagamentos",
@@ -1047,7 +1051,7 @@
             "type": "relatedGrid",
             "relation": "pagamentos",
             "editable": true,
-            "editMode": "inline",
+            "editMode": "modal",
             "create": {
               "enabled": true,
               "label": "Novo pagamento",
@@ -1134,7 +1138,11 @@
                 "format": "badge",
                 "readonly": true
               }
-            ]
+            ],
+            "delete": {
+              "enabled": true,
+              "confirm": "Excluir este pagamento?"
+            }
           },
           {
             "id": "fechamento",

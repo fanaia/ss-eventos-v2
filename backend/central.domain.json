@@ -1,1 +1,898 @@
-{"name":"Central SS Eventos V2","slug":"ss-eventos-v2","schemaVersion":1,"models":[{"name":"ClienteFornecedor","singular":"clienteFornecedor","basePath":"/clientes-fornecedores","crud":{"enabled":true,"roles":{"write":["desenvolvedor"]},"populateRefs":true},"fields":{"cliente":{"kind":"boolean","label":"Cliente","default":false},"fornecedor":{"kind":"boolean","label":"Fornecedor","default":false},"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"minLength":2,"maxLength":160},"tipo":{"kind":"enum","label":"Tipo","values":["PF","PJ","Est"],"default":"PJ","required":true},"documento":{"kind":"string","label":"Documento","required":true,"searchable":true,"maxLength":32,"unique":true},"origem":{"kind":"enum","label":"Origem","values":["Local","Omie"],"default":"Local"},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}},"validations":[{"name":"cliente-ou-fornecedor","code":"CLIENTE_FORNECEDOR_SEM_PAPEL","field":"cliente","message":"Marque o cadastro como Cliente, Fornecedor ou ambos.","assert":{"op":"or","args":[{"op":"eq","args":[{"field":"cliente"},{"value":true}]},{"op":"eq","args":[{"field":"fornecedor"},{"value":true}]}]}}]},{"name":"Contato","singular":"contato","basePath":"/contatos","crud":{"enabled":true,"roles":{"write":["desenvolvedor"]},"populateRefs":true},"fields":{"clienteFornecedorId":{"kind":"ref","label":"Cliente/Fornecedor","ref":"ClienteFornecedor","required":true,"index":true},"cargo":{"kind":"string","label":"Cargo","maxLength":120},"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":160},"telefone":{"kind":"string","label":"Telefone","maxLength":32},"email":{"kind":"string","label":"E-mail","searchable":true,"maxLength":160},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"Categoria","singular":"categoria","basePath":"/categorias","crud":{"enabled":true,"roles":{"write":["admin","desenvolvedor"]},"populateRefs":true},"fields":{"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":160},"categoriaPaiId":{"kind":"ref","label":"Categoria Pai","ref":"Categoria","index":true},"descricao":{"kind":"string","label":"Descrição","searchable":true,"maxLength":1000},"codigoCategoriaOmie":{"kind":"string","label":"Código Categoria Omie","searchable":true,"maxLength":60},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"Estado","singular":"estado","basePath":"/estados","crud":{"enabled":true,"roles":{"write":["__localidades_internas__"]}},"fields":{"codigoIbge":{"kind":"string","label":"Código IBGE","required":true,"searchable":true,"maxLength":2,"unique":true},"uf":{"kind":"enum","label":"UF","values":["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"],"required":true,"unique":true},"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":80},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"Cidade","singular":"cidade","basePath":"/cidades","crud":{"enabled":true,"roles":{"write":["__localidades_internas__"]},"populateRefs":true},"fields":{"estadoId":{"kind":"ref","label":"Estado","ref":"Estado","required":true,"index":true},"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":160},"codigoIbge":{"kind":"string","label":"Código IBGE","required":true,"searchable":true,"maxLength":12,"unique":true},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"Responsavel","singular":"responsavel","basePath":"/responsaveis","crud":{"enabled":true,"roles":{"write":["admin","desenvolvedor"]},"populateRefs":true},"fields":{"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":160},"email":{"kind":"string","label":"E-mail","searchable":true,"maxLength":160},"tipo":{"kind":"enum","label":"Tipo","values":["Operacional","Pagamento","Ambos"],"default":"Ambos","required":true},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"Projeto","singular":"projeto","basePath":"/projetos","crud":{"enabled":true,"roles":{"write":["desenvolvedor"]},"populateRefs":true},"fields":{"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":180},"fornecedorId":{"kind":"ref","label":"Fornecedor","ref":"ClienteFornecedor","required":true,"index":true},"clienteId":{"kind":"ref","label":"Cliente","ref":"ClienteFornecedor","required":true,"index":true},"contatoPrincipalId":{"kind":"ref","label":"Contato Principal","ref":"Contato","required":true},"percentualFee":{"kind":"number","label":"% Fee","default":0,"required":true,"min":0,"max":100},"percentualImposto":{"kind":"number","label":"% Imposto","default":0,"required":true,"min":0,"max":100},"status":{"kind":"enum","label":"Status","values":["Ativo","Inativo"],"default":"Ativo","index":true}}},{"name":"ProjetoItem","singular":"projetoItem","basePath":"/projetos-itens","crud":{"enabled":true,"roles":{"write":["desenvolvedor"]},"populateRefs":true},"fields":{"orcamentoTotal":{"kind":"currency","label":"Valor Orçado","computed":{"precision":2,"nullAsZero":true,"expression":{"op":"multiply","args":[{"field":"orcamentoQuantidade"},{"field":"orcamentoDiarias"},{"field":"orcamentoValorUnitario"}]}}},"contratacaoTotal":{"kind":"currency","label":"Valor Contratado","computed":{"precision":2,"nullAsZero":true,"expression":{"op":"multiply","args":[{"field":"contratacaoQuantidade"},{"field":"contratacaoDiarias"},{"field":"contratacaoValorUnitario"}]}}},"pagamentoResumo":{"kind":"string","label":"Pagamento","maxLength":120},"projetoId":{"kind":"ref","label":"Projeto","ref":"Projeto","required":true,"index":true},"faturamento":{"kind":"enum","label":"Faturamento","values":["Agência","Agência Interna","Faturamento Direto"],"default":"Agência","required":true},"estadoId":{"kind":"ref","label":"Estado","ref":"Estado","required":true,"index":true},"cidadeId":{"kind":"ref","label":"Cidade","ref":"Cidade","required":true,"index":true},"categoriaId":{"kind":"ref","label":"Categoria","ref":"Categoria","required":true,"index":true},"subcategoriaId":{"kind":"ref","label":"Subcategoria","ref":"Categoria","index":true},"tipoCusto":{"kind":"enum","label":"Tipo de Custo","values":["Fixo","Variável"],"default":"Variável","required":true},"nome":{"kind":"string","label":"Nome","required":true,"searchable":true,"maxLength":180},"descricao":{"kind":"string","label":"Descrição","searchable":true,"maxLength":2000},"etapa":{"kind":"enum","label":"Etapa","values":["Pendente","Em negociação","Solicitado","Em andamento","Concluído","Cancelado"],"default":"Pendente","required":true,"index":true},"statusTrabalho":{"kind":"enum","label":"Status de trabalho","values":["Aguardando início","Trabalhando","Revisar"],"default":"Aguardando início","required":true,"index":true},"responsavelId":{"kind":"ref","label":"Responsável","ref":"Responsavel","required":true,"index":true},"orcamentoQuantidade":{"kind":"number","label":"Orçamento - Qtd.","default":1,"min":0},"orcamentoDiarias":{"kind":"number","label":"Orçamento - Diárias","default":1,"min":0},"orcamentoValorUnitario":{"kind":"currency","label":"Orçamento - Valor Unit.","default":0,"min":0},"contratacaoQuantidade":{"kind":"number","label":"Contratação - Qtd.","default":1,"min":0},"contratacaoDiarias":{"kind":"number","label":"Contratação - Diárias","default":1,"min":0},"contratacaoValorUnitario":{"kind":"currency","label":"Contratação - Valor Unit.","default":0,"min":0},"percentualFeeAplicado":{"kind":"number","label":"% Fee aplicado","default":0,"min":0,"max":100},"percentualImpostoAplicado":{"kind":"number","label":"% Imposto aplicado","default":0,"min":0,"max":100},"fechamentoValor":{"kind":"currency","label":"Fechamento - Valor","default":0},"fechamentoFee":{"kind":"currency","label":"Fechamento - Fee","default":0},"fechamentoImposto":{"kind":"currency","label":"Fechamento - Impostos","default":0},"fechamentoTotal":{"kind":"currency","label":"Fechamento - Total","default":0},"fechamentoLucroValor":{"kind":"currency","label":"Lucro - Valor","default":0},"fechamentoLucroPercentual":{"kind":"number","label":"Lucro - %","default":0},"fechamentoObservacao":{"kind":"string","label":"Fechamento - Observação","maxLength":2000},"pagamentoTotalPlanejado":{"kind":"currency","label":"Pagamentos planejados","default":0},"pagamentoTotalPago":{"kind":"currency","label":"Pago no Omie","default":0},"pagamentoValorPendente":{"kind":"currency","label":"Pendente de pagamento","default":0},"pagamentoStatus":{"kind":"enum","label":"Situação dos pagamentos","values":["Sem pagamento","Pagamento pendente","Enviado ao Omie","Parcialmente pago","Pago","Divergência","Erro de integração"],"default":"Sem pagamento","index":true}}},{"name":"Pagamento","singular":"pagamento","basePath":"/pagamentos","crud":{"enabled":true,"roles":{"write":["admin","desenvolvedor"]},"populateRefs":true},"fields":{"projetoId":{"kind":"ref","label":"Projeto","ref":"Projeto","required":true,"index":true},"projetoItemId":{"kind":"ref","label":"Item do Projeto","ref":"ProjetoItem","required":true,"index":true},"dataPrevisaoPagamento":{"kind":"date","label":"Data previsão pagamento","required":true},"valor":{"kind":"currency","label":"Valor","required":true,"min":0.01},"responsavelPagamentoId":{"kind":"ref","label":"Responsável Pagamento","ref":"Responsavel","required":true,"index":true},"nfRecebida":{"kind":"boolean","label":"NF Recebida","default":false},"etapa":{"kind":"enum","label":"Etapa","values":["Solicitado","Aprovado","Aguardando NF","Enviado para Omie","Pagamento Ok"],"default":"Solicitado","required":true,"index":true},"statusTrabalho":{"kind":"enum","label":"Status de trabalho","values":["Aguardando início","Trabalhando","Revisar"],"default":"Aguardando início","required":true,"index":true},"observacao":{"kind":"string","label":"Observação","maxLength":2000},"codigoLancamentoIntegracao":{"kind":"string","label":"Código de integração Omie","searchable":true,"maxLength":120},"codigoLancamentoOmie":{"kind":"number","label":"Lançamento Omie"},"contaCorrenteOmieCodigo":{"kind":"string","label":"Conta corrente Omie","maxLength":80},"omieValorTitulo":{"kind":"currency","label":"Valor do título Omie","default":0},"omieValorPago":{"kind":"currency","label":"Valor pago no Omie","default":0},"omieValorPendente":{"kind":"currency","label":"Valor pendente no Omie","default":0},"omieDataUltimaBaixa":{"kind":"date","label":"Última baixa no Omie"},"omieLiquidado":{"kind":"boolean","label":"Liquidado no Omie","default":false},"omieStatusIntegracao":{"kind":"enum","label":"Status integração Omie","values":["Não enviado","Pendente","Processando","Enviado","Erro","Cancelado"],"default":"Não enviado","index":true},"omieUltimoErro":{"kind":"string","label":"Último erro Omie","searchable":true,"maxLength":2000},"omieUltimaSincronizacaoEm":{"kind":"date","label":"Última sincronização Omie"},"canceladoNaCentral":{"kind":"boolean","label":"Cancelado na Central","default":false}}}]}
+{
+  "name": "Central SS Eventos V2",
+  "slug": "ss-eventos-v2",
+  "schemaVersion": 1,
+  "models": [
+    {
+      "name": "ClienteFornecedor",
+      "singular": "clienteFornecedor",
+      "basePath": "/clientes-fornecedores",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "cliente": {
+          "kind": "boolean",
+          "label": "Cliente",
+          "default": false
+        },
+        "fornecedor": {
+          "kind": "boolean",
+          "label": "Fornecedor",
+          "default": false
+        },
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "tipo": {
+          "kind": "enum",
+          "label": "Tipo",
+          "values": [
+            "PF",
+            "PJ",
+            "Est"
+          ],
+          "default": "PJ",
+          "required": true
+        },
+        "documento": {
+          "kind": "string",
+          "label": "Documento",
+          "required": true,
+          "searchable": true,
+          "maxLength": 32,
+          "unique": true
+        },
+        "origem": {
+          "kind": "enum",
+          "label": "Origem",
+          "values": [
+            "Local",
+            "Omie"
+          ],
+          "default": "Local"
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      },
+      "validations": [
+        {
+          "name": "cliente-ou-fornecedor",
+          "code": "CLIENTE_FORNECEDOR_SEM_PAPEL",
+          "field": "cliente",
+          "message": "Marque o cadastro como Cliente, Fornecedor ou ambos.",
+          "assert": {
+            "op": "or",
+            "args": [
+              {
+                "op": "eq",
+                "args": [
+                  {
+                    "field": "cliente"
+                  },
+                  {
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "op": "eq",
+                "args": [
+                  {
+                    "field": "fornecedor"
+                  },
+                  {
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contato",
+      "singular": "contato",
+      "basePath": "/contatos",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "clienteFornecedorId": {
+          "kind": "ref",
+          "label": "Cliente/Fornecedor",
+          "ref": "ClienteFornecedor",
+          "required": true,
+          "index": true
+        },
+        "cargo": {
+          "kind": "string",
+          "label": "Cargo",
+          "maxLength": 120
+        },
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 160
+        },
+        "telefone": {
+          "kind": "string",
+          "label": "Telefone",
+          "maxLength": 32
+        },
+        "email": {
+          "kind": "string",
+          "label": "E-mail",
+          "searchable": true,
+          "maxLength": 160
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Categoria",
+      "singular": "categoria",
+      "basePath": "/categorias",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "admin",
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 160
+        },
+        "categoriaPaiId": {
+          "kind": "ref",
+          "label": "Categoria Pai",
+          "ref": "Categoria",
+          "index": true
+        },
+        "descricao": {
+          "kind": "string",
+          "label": "Descrição",
+          "searchable": true,
+          "maxLength": 1000
+        },
+        "codigoCategoriaOmie": {
+          "kind": "string",
+          "label": "Código Categoria Omie",
+          "searchable": true,
+          "maxLength": 60
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Estado",
+      "singular": "estado",
+      "basePath": "/estados",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "__localidades_internas__"
+          ]
+        }
+      },
+      "fields": {
+        "codigoIbge": {
+          "kind": "string",
+          "label": "Código IBGE",
+          "required": true,
+          "searchable": true,
+          "maxLength": 2,
+          "unique": true
+        },
+        "uf": {
+          "kind": "enum",
+          "label": "UF",
+          "values": [
+            "AC",
+            "AL",
+            "AP",
+            "AM",
+            "BA",
+            "CE",
+            "DF",
+            "ES",
+            "GO",
+            "MA",
+            "MT",
+            "MS",
+            "MG",
+            "PA",
+            "PB",
+            "PR",
+            "PE",
+            "PI",
+            "RJ",
+            "RN",
+            "RS",
+            "RO",
+            "RR",
+            "SC",
+            "SP",
+            "SE",
+            "TO"
+          ],
+          "required": true,
+          "unique": true
+        },
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 80
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Cidade",
+      "singular": "cidade",
+      "basePath": "/cidades",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "__localidades_internas__"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "estadoId": {
+          "kind": "ref",
+          "label": "Estado",
+          "ref": "Estado",
+          "required": true,
+          "index": true
+        },
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 160
+        },
+        "codigoIbge": {
+          "kind": "string",
+          "label": "Código IBGE",
+          "required": true,
+          "searchable": true,
+          "maxLength": 12,
+          "unique": true
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Responsavel",
+      "singular": "responsavel",
+      "basePath": "/responsaveis",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "admin",
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 160
+        },
+        "email": {
+          "kind": "string",
+          "label": "E-mail",
+          "searchable": true,
+          "maxLength": 160
+        },
+        "tipo": {
+          "kind": "enum",
+          "label": "Tipo",
+          "values": [
+            "Operacional",
+            "Pagamento",
+            "Ambos"
+          ],
+          "default": "Ambos",
+          "required": true
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Projeto",
+      "singular": "projeto",
+      "basePath": "/projetos",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 180
+        },
+        "fornecedorId": {
+          "kind": "ref",
+          "label": "Fornecedor",
+          "ref": "ClienteFornecedor",
+          "required": true,
+          "index": true
+        },
+        "clienteId": {
+          "kind": "ref",
+          "label": "Cliente",
+          "ref": "ClienteFornecedor",
+          "required": true,
+          "index": true
+        },
+        "contatoPrincipalId": {
+          "kind": "ref",
+          "label": "Contato Principal",
+          "ref": "Contato",
+          "required": true
+        },
+        "percentualFee": {
+          "kind": "number",
+          "label": "% Fee",
+          "default": 0,
+          "required": true,
+          "min": 0,
+          "max": 100
+        },
+        "percentualImposto": {
+          "kind": "number",
+          "label": "% Imposto",
+          "default": 0,
+          "required": true,
+          "min": 0,
+          "max": 100
+        },
+        "status": {
+          "kind": "enum",
+          "label": "Status",
+          "values": [
+            "Ativo",
+            "Inativo"
+          ],
+          "default": "Ativo",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "ProjetoItem",
+      "singular": "projetoItem",
+      "basePath": "/projetos-itens",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "orcamentoTotal": {
+          "kind": "currency",
+          "label": "Valor Orçado",
+          "computed": {
+            "precision": 2,
+            "nullAsZero": true,
+            "expression": {
+              "op": "multiply",
+              "args": [
+                {
+                  "field": "orcamentoQuantidade"
+                },
+                {
+                  "field": "orcamentoDiarias"
+                },
+                {
+                  "field": "orcamentoValorUnitario"
+                }
+              ]
+            }
+          }
+        },
+        "contratacaoTotal": {
+          "kind": "currency",
+          "label": "Valor Contratado",
+          "computed": {
+            "precision": 2,
+            "nullAsZero": true,
+            "expression": {
+              "op": "multiply",
+              "args": [
+                {
+                  "field": "contratacaoQuantidade"
+                },
+                {
+                  "field": "contratacaoDiarias"
+                },
+                {
+                  "field": "contratacaoValorUnitario"
+                }
+              ]
+            }
+          }
+        },
+        "pagamentoResumo": {
+          "kind": "string",
+          "label": "Pagamento",
+          "maxLength": 120
+        },
+        "projetoId": {
+          "kind": "ref",
+          "label": "Projeto",
+          "ref": "Projeto",
+          "required": true,
+          "index": true
+        },
+        "faturamento": {
+          "kind": "enum",
+          "label": "Faturamento",
+          "values": [
+            "Agência",
+            "Agência Interna",
+            "Faturamento Direto"
+          ],
+          "default": "Agência",
+          "required": true
+        },
+        "estadoId": {
+          "kind": "ref",
+          "label": "Estado",
+          "ref": "Estado",
+          "index": true
+        },
+        "cidadeId": {
+          "kind": "ref",
+          "label": "Cidade",
+          "ref": "Cidade",
+          "index": true
+        },
+        "categoriaId": {
+          "kind": "ref",
+          "label": "Categoria",
+          "ref": "Categoria",
+          "required": true,
+          "index": true
+        },
+        "subcategoriaId": {
+          "kind": "ref",
+          "label": "Subcategoria",
+          "ref": "Categoria",
+          "index": true
+        },
+        "tipoCusto": {
+          "kind": "enum",
+          "label": "Tipo de Custo",
+          "values": [
+            "Fixo",
+            "Variável"
+          ],
+          "default": "Variável",
+          "required": true
+        },
+        "nome": {
+          "kind": "string",
+          "label": "Nome",
+          "required": true,
+          "searchable": true,
+          "maxLength": 180
+        },
+        "descricao": {
+          "kind": "string",
+          "label": "Descrição",
+          "searchable": true,
+          "maxLength": 2000
+        },
+        "etapa": {
+          "kind": "enum",
+          "label": "Etapa",
+          "values": [
+            "Pendente",
+            "Em negociação",
+            "Solicitado",
+            "Em andamento",
+            "Concluído",
+            "Cancelado"
+          ],
+          "default": "Pendente",
+          "required": true,
+          "index": true
+        },
+        "statusTrabalho": {
+          "kind": "enum",
+          "label": "Status de trabalho",
+          "values": [
+            "Aguardando início",
+            "Trabalhando",
+            "Revisar"
+          ],
+          "default": "Aguardando início",
+          "required": true,
+          "index": true
+        },
+        "responsavelId": {
+          "kind": "ref",
+          "label": "Responsável",
+          "ref": "Responsavel",
+          "required": true,
+          "index": true
+        },
+        "orcamentoQuantidade": {
+          "kind": "number",
+          "label": "Orçamento - Qtd.",
+          "default": 1,
+          "min": 0
+        },
+        "orcamentoDiarias": {
+          "kind": "number",
+          "label": "Orçamento - Diárias",
+          "default": 1,
+          "min": 0
+        },
+        "orcamentoValorUnitario": {
+          "kind": "currency",
+          "label": "Orçamento - Valor Unit.",
+          "default": 0,
+          "min": 0
+        },
+        "contratacaoQuantidade": {
+          "kind": "number",
+          "label": "Contratação - Qtd.",
+          "default": 1,
+          "min": 0
+        },
+        "contratacaoDiarias": {
+          "kind": "number",
+          "label": "Contratação - Diárias",
+          "default": 1,
+          "min": 0
+        },
+        "contratacaoValorUnitario": {
+          "kind": "currency",
+          "label": "Contratação - Valor Unit.",
+          "default": 0,
+          "min": 0
+        },
+        "percentualFeeAplicado": {
+          "kind": "number",
+          "label": "% Fee aplicado",
+          "default": 0,
+          "min": 0,
+          "max": 100
+        },
+        "percentualImpostoAplicado": {
+          "kind": "number",
+          "label": "% Imposto aplicado",
+          "default": 0,
+          "min": 0,
+          "max": 100
+        },
+        "fechamentoValor": {
+          "kind": "currency",
+          "label": "Fechamento - Valor",
+          "default": 0
+        },
+        "fechamentoFee": {
+          "kind": "currency",
+          "label": "Fechamento - Fee",
+          "default": 0
+        },
+        "fechamentoImposto": {
+          "kind": "currency",
+          "label": "Fechamento - Impostos",
+          "default": 0
+        },
+        "fechamentoTotal": {
+          "kind": "currency",
+          "label": "Fechamento - Total",
+          "default": 0
+        },
+        "fechamentoLucroValor": {
+          "kind": "currency",
+          "label": "Lucro - Valor",
+          "default": 0
+        },
+        "fechamentoLucroPercentual": {
+          "kind": "number",
+          "label": "Lucro - %",
+          "default": 0
+        },
+        "fechamentoObservacao": {
+          "kind": "string",
+          "label": "Fechamento - Observação",
+          "maxLength": 2000
+        },
+        "pagamentoTotalPlanejado": {
+          "kind": "currency",
+          "label": "Pagamentos planejados",
+          "default": 0
+        },
+        "pagamentoTotalPago": {
+          "kind": "currency",
+          "label": "Pago no Omie",
+          "default": 0
+        },
+        "pagamentoValorPendente": {
+          "kind": "currency",
+          "label": "Pendente de pagamento",
+          "default": 0
+        },
+        "pagamentoStatus": {
+          "kind": "enum",
+          "label": "Situação dos pagamentos",
+          "values": [
+            "Sem pagamento",
+            "Pagamento pendente",
+            "Enviado ao Omie",
+            "Parcialmente pago",
+            "Pago",
+            "Divergência",
+            "Erro de integração"
+          ],
+          "default": "Sem pagamento",
+          "index": true
+        }
+      }
+    },
+    {
+      "name": "Pagamento",
+      "singular": "pagamento",
+      "basePath": "/pagamentos",
+      "crud": {
+        "enabled": true,
+        "roles": {
+          "write": [
+            "admin",
+            "desenvolvedor"
+          ]
+        },
+        "populateRefs": true
+      },
+      "fields": {
+        "projetoId": {
+          "kind": "ref",
+          "label": "Projeto",
+          "ref": "Projeto",
+          "required": true,
+          "index": true
+        },
+        "projetoItemId": {
+          "kind": "ref",
+          "label": "Item do Projeto",
+          "ref": "ProjetoItem",
+          "required": true,
+          "index": true
+        },
+        "dataPrevisaoPagamento": {
+          "kind": "date",
+          "label": "Data previsão pagamento",
+          "required": true
+        },
+        "valor": {
+          "kind": "currency",
+          "label": "Valor",
+          "required": true,
+          "min": 0.01
+        },
+        "responsavelPagamentoId": {
+          "kind": "ref",
+          "label": "Responsável Pagamento",
+          "ref": "Responsavel",
+          "required": true,
+          "index": true
+        },
+        "nfRecebida": {
+          "kind": "boolean",
+          "label": "NF Recebida",
+          "default": false
+        },
+        "etapa": {
+          "kind": "enum",
+          "label": "Etapa",
+          "values": [
+            "Solicitado",
+            "Aprovado",
+            "Aguardando NF",
+            "Enviado para Omie",
+            "Pagamento Ok"
+          ],
+          "default": "Solicitado",
+          "required": true,
+          "index": true
+        },
+        "statusTrabalho": {
+          "kind": "enum",
+          "label": "Status de trabalho",
+          "values": [
+            "Aguardando início",
+            "Trabalhando",
+            "Revisar"
+          ],
+          "default": "Aguardando início",
+          "required": true,
+          "index": true
+        },
+        "observacao": {
+          "kind": "string",
+          "label": "Observação",
+          "maxLength": 2000
+        },
+        "codigoLancamentoIntegracao": {
+          "kind": "string",
+          "label": "Código de integração Omie",
+          "searchable": true,
+          "maxLength": 120
+        },
+        "codigoLancamentoOmie": {
+          "kind": "number",
+          "label": "Lançamento Omie"
+        },
+        "contaCorrenteOmieCodigo": {
+          "kind": "string",
+          "label": "Conta corrente Omie",
+          "maxLength": 80
+        },
+        "omieValorTitulo": {
+          "kind": "currency",
+          "label": "Valor do título Omie",
+          "default": 0
+        },
+        "omieValorPago": {
+          "kind": "currency",
+          "label": "Valor pago no Omie",
+          "default": 0
+        },
+        "omieValorPendente": {
+          "kind": "currency",
+          "label": "Valor pendente no Omie",
+          "default": 0
+        },
+        "omieDataUltimaBaixa": {
+          "kind": "date",
+          "label": "Última baixa no Omie"
+        },
+        "omieLiquidado": {
+          "kind": "boolean",
+          "label": "Liquidado no Omie",
+          "default": false
+        },
+        "omieStatusIntegracao": {
+          "kind": "enum",
+          "label": "Status integração Omie",
+          "values": [
+            "Não enviado",
+            "Pendente",
+            "Processando",
+            "Enviado",
+            "Erro",
+            "Cancelado"
+          ],
+          "default": "Não enviado",
+          "index": true
+        },
+        "omieUltimoErro": {
+          "kind": "string",
+          "label": "Último erro Omie",
+          "searchable": true,
+          "maxLength": 2000
+        },
+        "omieUltimaSincronizacaoEm": {
+          "kind": "date",
+          "label": "Última sincronização Omie"
+        },
+        "canceladoNaCentral": {
+          "kind": "boolean",
+          "label": "Cancelado na Central",
+          "default": false
+        }
+      }
+    }
+  ]
+}
