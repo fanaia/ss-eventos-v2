@@ -140,11 +140,11 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
 });
 
-test("Projeto usa o OonCore 0.3.51 com correções de formulário multiaaba", () => {
-  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.51");
-  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.51");
-  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.51");
-  assert.equal(app.compatibility.core.minVersion, "0.3.51");
+test("Projeto usa o OonCore 0.3.52 com correções de formulário multiaaba", () => {
+  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.52");
+  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.52");
+  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.52");
+  assert.equal(app.compatibility.core.minVersion, "0.3.52");
 
   const projetoView = ui.collections.find((view) => view.model === "Projeto");
   assert.equal(projetoView.detailModal.defaultTab, "resumo");
