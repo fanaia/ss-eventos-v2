@@ -10,7 +10,7 @@
     "documents": false,
     "pipelines": true,
     "integrations": true,
-    "omie": false,
+    "omie": true,
     "assistants": false,
     "currencies": false
   },
@@ -19,11 +19,12 @@
     "core.pipelines",
     "core.integrations",
     "domain.computed-fields",
-    "ui.related-grid.parent-defaults"
+    "ui.related-grid.parent-defaults",
+    "core.integrations.omie"
   ],
   "compatibility": {
     "core": {
-      "minVersion": "0.3.57",
+      "minVersion": "0.3.58",
       "maxVersionExclusive": "0.4.0"
     }
   },

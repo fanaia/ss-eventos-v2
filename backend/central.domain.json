@@ -72,6 +72,39 @@
           ],
           "default": "Ativo",
           "index": true
+        },
+        "codigoClienteOmie": {
+          "kind": "number",
+          "label": "Código Cliente/Fornecedor Omie",
+          "index": true
+        },
+        "codigoClienteIntegracao": {
+          "kind": "string",
+          "label": "Código de integração Omie",
+          "searchable": true,
+          "maxLength": 100
+        },
+        "omieSincronizadoEm": {
+          "kind": "date",
+          "label": "Sincronizado no Omie em"
+        },
+        "omieStatusIntegracao": {
+          "kind": "enum",
+          "label": "Status da integração Omie",
+          "values": [
+            "Não sincronizado",
+            "Pendente",
+            "Sincronizado",
+            "Conflito",
+            "Erro"
+          ],
+          "default": "Não sincronizado",
+          "index": true
+        },
+        "omieUltimoErro": {
+          "kind": "string",
+          "label": "Último erro Omie",
+          "maxLength": 1000
         }
       },
       "validations": [
@@ -215,6 +248,10 @@
           ],
           "default": "Ativo",
           "index": true
+        },
+        "omieSincronizadoEm": {
+          "kind": "date",
+          "label": "Categoria Omie sincronizada em"
         }
       }
     },
