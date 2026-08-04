@@ -186,3 +186,5 @@ A página Omie do OonCore `0.3.63` separa Configurações, Sincronização, Webh
 ## Dashboard operacional
 
 A Home `/` apresenta indicadores declarativos de Projetos, Itens e Pagamentos, valores orçados, contratados, fechados e pendentes, além da distribuição dos tickets por etapa e status de trabalho. As agregações são executadas pelo OonCore no backend sobre todos os registros.
+
+O Dashboard aparece no menu lateral e é aberto após o login. A engrenagem permanece ao lado de `Sair` como acesso exclusivo à Home de Configurações, sem recolocar Configurações no menu lateral.
