@@ -1,6 +1,6 @@
 {
   "name": "ss-eventos-v2-backend",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "description": "Backend declarativo da Central SS Eventos V2.",
   "scripts": {
@@ -15,6 +15,6 @@
     "deploy": "oonCore-back deploy"
   },
   "dependencies": {
-    "@oondemand/oon-core-back": "0.3.58"
+    "@oondemand/oon-core-back": "0.3.59"
   }
 }
