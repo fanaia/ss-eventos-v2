@@ -299,7 +299,8 @@
           "codigoCategoriaOmie",
           "status"
         ]
-      }
+      },
+      "hidden": true
     },
     {
       "model": "Projeto",
@@ -662,64 +663,8 @@
           "tipo",
           "status"
         ]
-      }
-    },
-    {
-      "model": "Estado",
-      "mode": "dynamic",
-      "path": "/estados",
-      "label": "Estados",
-      "section": "Configurações",
-      "list": {
-        "filters": [
-          {
-            "field": "status",
-            "label": "Status",
-            "type": "select"
-          }
-        ],
-        "columns": [
-          "uf",
-          "nome",
-          "codigoIbge",
-          "status"
-        ]
-      }
-    },
-    {
-      "model": "Cidade",
-      "mode": "dynamic",
-      "path": "/cidades",
-      "label": "Cidades",
-      "section": "Configurações",
-      "form": [
-        {
-          "field": "estadoId",
-          "referenceFilters": {
-            "status": "Ativo"
-          }
-        }
-      ],
-      "list": {
-        "filters": [
-          {
-            "field": "estadoId",
-            "label": "Estado",
-            "type": "ref"
-          },
-          {
-            "field": "status",
-            "label": "Status",
-            "type": "select"
-          }
-        ],
-        "columns": [
-          "estadoId",
-          "nome",
-          "codigoIbge",
-          "status"
-        ]
-      }
+      },
+      "hidden": true
     }
   ],
   "pipelines": [
@@ -1552,5 +1497,65 @@
       }
     }
   ],
-  "documents": []
+  "documents": [],
+  "pages": [
+    {
+      "id": "configuracoes-home",
+      "path": "/configuracoes",
+      "label": "Configurações",
+      "title": "Configurações",
+      "hidden": true,
+      "blocks": [
+        {
+          "type": "markdown",
+          "content": "Cadastros auxiliares e integrações utilizadas pela Central SS Eventos."
+        },
+        {
+          "type": "navigation.cards",
+          "columns": 2,
+          "cards": [
+            {
+              "title": "Cadastros Auxiliares",
+              "description": "Categorias, subcategorias e responsáveis utilizados na operação.",
+              "href": "/configuracoes/cadastros-auxiliares",
+              "actionLabel": "Abrir cadastros"
+            },
+            {
+              "title": "Integração Omie",
+              "description": "Credenciais, sincronizações, webhooks, gatilhos e histórico da integração.",
+              "href": "/configuracoes/integracao-omie",
+              "actionLabel": "Abrir Omie"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cadastros-auxiliares-home",
+      "path": "/configuracoes/cadastros-auxiliares",
+      "label": "Cadastros Auxiliares",
+      "title": "Cadastros Auxiliares",
+      "hidden": true,
+      "blocks": [
+        {
+          "type": "navigation.cards",
+          "columns": 2,
+          "cards": [
+            {
+              "title": "Categorias/Subcategorias",
+              "description": "Classificações internas relacionadas às categorias financeiras do Omie.",
+              "href": "/categorias",
+              "actionLabel": "Abrir categorias"
+            },
+            {
+              "title": "Responsáveis",
+              "description": "Responsáveis operacionais e financeiros dos projetos e pagamentos.",
+              "href": "/responsaveis",
+              "actionLabel": "Abrir responsáveis"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

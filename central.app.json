@@ -24,7 +24,7 @@
   ],
   "compatibility": {
     "core": {
-      "minVersion": "0.3.61",
+      "minVersion": "0.3.62",
       "maxVersionExclusive": "0.4.0"
     }
   },

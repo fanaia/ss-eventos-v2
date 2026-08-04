@@ -54,7 +54,7 @@ for (const capability of [
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.61";
+const expectedVersion = "0.3.62";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -350,7 +350,7 @@ for (const view of views) {
 }
 
 const collectionModels = new Set((ui.collections ?? []).map((view) => view.model));
-for (const modelName of expectedModels.filter((name) => !["ProjetoItem", "Pagamento"].includes(name))) {
+for (const modelName of expectedModels.filter((name) => !["ProjetoItem", "Pagamento", "Estado", "Cidade"].includes(name))) {
   if (!collectionModels.has(modelName)) fail(`Coleção de navegação ausente: ${modelName}.`);
 }
 for (const pipelineName of ["ProjetoItem", "Pagamento"]) {

@@ -29,10 +29,31 @@ test("declara todas as models e views da SS Eventos", () => {
   assert.deepEqual(domain.models.map((model) => model.name), expected);
   assert.deepEqual(
     [...ui.collections.map((view) => view.model)].sort(),
-    expected.filter((name) => !["ProjetoItem", "Pagamento"].includes(name)).sort(),
+    expected.filter((name) => !["ProjetoItem", "Pagamento", "Estado", "Cidade"].includes(name)).sort(),
   );
   assert.deepEqual(ui.pipelines.map((view) => view.model), ["ProjetoItem", "Pagamento"]);
   assert.deepEqual(Object.keys(processManifest.models), expected);
+});
+
+test("configurações usam Home sem poluir o menu lateral", () => {
+  const categoria = ui.collections.find((view) => view.model === "Categoria");
+  const responsavel = ui.collections.find((view) => view.model === "Responsavel");
+  assert.equal(categoria.hidden, true);
+  assert.equal(responsavel.hidden, true);
+  assert.equal(ui.collections.some((view) => view.model === "Estado"), false);
+  assert.equal(ui.collections.some((view) => view.model === "Cidade"), false);
+  const settings = ui.pages.find((page) => page.path === "/configuracoes");
+  const auxiliaries = ui.pages.find((page) => page.path === "/configuracoes/cadastros-auxiliares");
+  assert.equal(settings.hidden, true);
+  assert.equal(auxiliaries.hidden, true);
+  assert.deepEqual(settings.blocks.find((block) => block.type === "navigation.cards").cards.map((card) => card.href), [
+    "/configuracoes/cadastros-auxiliares",
+    "/configuracoes/integracao-omie",
+  ]);
+  assert.deepEqual(auxiliaries.blocks.find((block) => block.type === "navigation.cards").cards.map((card) => card.href), [
+    "/categorias",
+    "/responsaveis",
+  ]);
 });
 
 test("não incorpora models técnicos da integração", () => {
@@ -140,11 +161,11 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
 });
 
-test("Projeto usa o OonCore 0.3.61 com engine e adaptador Omie nativos", () => {
-  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.61");
-  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.61");
-  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.61");
-  assert.equal(app.compatibility.core.minVersion, "0.3.61");
+test("Projeto usa o OonCore 0.3.62 com engine e adaptador Omie nativos", () => {
+  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.62");
+  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.62");
+  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.62");
+  assert.equal(app.compatibility.core.minVersion, "0.3.62");
 
   const projetoView = ui.collections.find((view) => view.model === "Projeto");
   assert.equal(projetoView.detailModal.defaultTab, "resumo");
