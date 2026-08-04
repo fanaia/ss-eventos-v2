@@ -9,7 +9,7 @@ A Home apresenta:
 
 Categorias/Subcategorias e Responsáveis continuam disponíveis por rota, mas não aparecem no menu lateral. Estados e Cidades não possuem view própria no frontend e permanecem somente como models internas de referência.
 
-A integração Omie do OonCore `0.3.62` é dividida em:
+A integração Omie do OonCore `0.3.63` é dividida em:
 
 1. Configurações;
 2. Sincronização;
