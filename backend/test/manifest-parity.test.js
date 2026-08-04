@@ -140,11 +140,11 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
 });
 
-test("Projeto usa o OonCore 0.3.57 com correções de formulários, pagamentos e ações sequenciais", () => {
-  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.57");
-  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.57");
-  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.57");
-  assert.equal(app.compatibility.core.minVersion, "0.3.57");
+test("Projeto usa o OonCore 0.3.58 com engine e adaptador Omie nativos", () => {
+  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.58");
+  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.58");
+  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.58");
+  assert.equal(app.compatibility.core.minVersion, "0.3.58");
 
   const projetoView = ui.collections.find((view) => view.model === "Projeto");
   assert.equal(projetoView.detailModal.defaultTab, "resumo");
@@ -202,4 +202,24 @@ test("localização opcional também é respeitada nas regras e o novo pagamento
     "pagamentoSaldoPlanejamento",
     "o valor inicial deve usar o saldo restante para programar novos pagamentos",
   );
+});
+
+
+test("habilita Omie por capability e declara listas, chamadas e webhooks na Central", () => {
+  assert.equal(app.modules.omie, true);
+  assert.ok(app.capabilities.includes("core.integrations.omie"));
+  const source = fs.readFileSync(path.join(root, "backend/src/mappings/omie.js"), "utf8");
+  for (const value of [
+    "defineOmieMapping",
+    "clientes-prestadores",
+    "categorias-financeiras",
+    "listar-contas-correntes",
+    "Financas.ContaPagar.Alterado",
+  ]) assert.ok(source.includes(value));
+  for (const technical of [
+    "backend/src/models/OmieConfiguracao.js",
+    "backend/src/models/IntegrationOutbox.js",
+    "backend/src/models/WebhookInbox.js",
+    "backend/src/triggers/omieWorker.js",
+  ]) assert.equal(fs.existsSync(path.join(root, technical)), false, technical);
 });

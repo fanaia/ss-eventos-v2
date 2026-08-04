@@ -40,20 +40,21 @@ if (app.modules?.collections !== true || app.modules?.pipelines !== true) {
 if (app.modules?.integrations !== true) {
   fail("SS Eventos V2 deve habilitar a engine nativa de integrações do OonCore.");
 }
-if (app.modules?.omie !== false) {
-  fail("O adaptador Omie deve permanecer desabilitado até a Fase 6.");
+if (app.modules?.omie !== true) {
+  fail("SS Eventos V2 deve habilitar o adaptador Omie nativo na Fase 6.");
 }
 for (const capability of [
   "core.collections",
   "core.pipelines",
   "core.integrations",
+  "core.integrations.omie",
   "domain.computed-fields",
   "ui.related-grid.parent-defaults",
 ]) {
   if (!app.capabilities?.includes(capability)) fail(`Capability obrigatória ausente: ${capability}.`);
 }
 
-const expectedVersion = "0.3.57";
+const expectedVersion = "0.3.58";
 const versions = {
   generator: rootPackage.devDependencies?.["@oondemand/create-central-oon"],
   backend: backendPackage.dependencies?.["@oondemand/oon-core-back"],
@@ -445,3 +446,14 @@ console.log(
     + `${Object.keys(processManifest.models).length} processos, ${ui.collections.length} coleções, `
     + `${ui.pipelines.length} esteiras, OonCore ${expectedVersion}.`,
 );
+
+
+const omieMappingPath = "backend/src/mappings/omie.js";
+if (!exists(omieMappingPath)) fail("A Central deve declarar seus mappings Omie.");
+const omieMappingSource = readText(omieMappingPath);
+for (const required of ["defineOmieMapping", "listar-clientes-prestadores", "listar-categorias", "listar-contas-correntes", "Financas.ContaPagar.Alterado"]) {
+  if (!omieMappingSource.includes(required)) fail(`Mapping Omie obrigatório ausente: ${required}.`);
+}
+for (const forbidden of ["IntegrationOutbox", "WebhookInbox", "setInterval", "OmieConfiguracao"]) {
+  if (omieMappingSource.includes(forbidden)) fail(`Runtime técnico Omie não pode ser copiado para a Central: ${forbidden}.`);
+}

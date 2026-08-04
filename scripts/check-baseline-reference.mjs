@@ -24,21 +24,21 @@ function run() {
   if (app.modules?.integrations !== true || !app.capabilities?.includes("core.integrations")) {
     fail("a Fase 5 deve consumir a engine nativa de integrações do OonCore");
   }
-  if (app.modules?.omie !== false) {
-    fail("o adaptador Omie deve permanecer desabilitado até a Fase 6");
+  if (app.modules?.omie !== true || !app.capabilities?.includes("core.integrations.omie")) {
+    fail("a Fase 6 deve consumir o adaptador Omie nativo do OonCore");
   }
   if (!/A engine de integrações pertence ao OonCore[\s\S]*models técnicos[\s\S]*outbox[\s\S]*inbox[\s\S]*runtime/i.test(readme)) {
     fail("fronteira da engine nativa não está documentada");
   }
-  if (!/adaptador Omie permanece desabilitado/i.test(readme)) {
-    fail("limite do adaptador Omie não está documentado");
+  if (!/adaptador Omie nativo do OonCore/i.test(readme)) {
+    fail("fronteira do adaptador Omie nativo não está documentada");
   }
   if (!/não está autorizada para cutover/i.test(readme)) {
     fail("restrição de cutover não está documentada");
   }
 
   console.log(
-    "[baseline-reference] OK — referência da Fase 0 preservada; engine F5 habilitada sem paridade, Omie ou cutover.",
+    "[baseline-reference] OK — referência da Fase 0 preservada; engine F5 e adaptador F6 habilitados sem autorizar cutover.",
   );
 }
 

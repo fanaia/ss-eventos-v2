@@ -14,7 +14,8 @@ A Central declara somente:
 - `backend/src/validations`: regras específicas que consultam outros registros;
 - `backend/src/triggers`: efeitos e cálculos entre models;
 - `backend/src/hooks`: proteção de exclusão e carga das localidades oficiais;
-- `backend/src/services`: funções puras reutilizadas pelas regras.
+- `backend/src/services`: funções puras reutilizadas pelas regras;
+- `backend/src/mappings/omie.js`: endpoints, chamadas, listas, transformações e eventos Omie específicos da SS Eventos.
 
 `backend/central.config.js` não contém identidade nem autenticação. `frontend/src/main.tsx` apenas importa os dois manifestos e chama `startCentralFromManifest`.
 
@@ -22,13 +23,13 @@ A engine de integrações pertence ao OonCore. Não existem na V2 models técnic
 
 ## Versão-alvo
 
-Os três pacotes estão fixados exatamente em `0.3.57`:
+Os três pacotes estão fixados exatamente em `0.3.58`:
 
 - `@oondemand/create-central-oon`;
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
 
-A versão `0.3.57` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
+A versão `0.3.58` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
 
 Além dos contratos declarativos anteriores, essa versão fornece a engine genérica de integrações, página operacional nativa e o executável separado `oonCore-integration-worker`.
 
@@ -44,19 +45,20 @@ A fonte única da identidade é `central.app.json`:
     "collections": true,
     "pipelines": true,
     "integrations": true,
-    "omie": false
+    "omie": true
   },
   "capabilities": [
     "core.collections",
     "core.pipelines",
     "core.integrations",
+    "core.integrations.omie",
     "domain.computed-fields",
     "ui.related-grid.parent-defaults"
   ]
 }
 ```
 
-A capability `core.integrations` habilita a página e as APIs operacionais padrão do Core. O adaptador Omie permanece desabilitado até a implementação da Fase 6; esta mudança não adiciona cliente HTTP, mapping ou regra Omie local.
+As capabilities `core.integrations` e `core.integrations.omie` habilitam a página, as APIs operacionais e o adaptador Omie nativo do OonCore. A Central declara somente endpoints, chamadas, listas, transformações e ações do seu domínio; cliente HTTP, credenciais, outbox, inbox, retry, locks e worker permanecem no Core.
 
 ## Engine de integrações
 
@@ -81,7 +83,7 @@ npm run integration:worker:once --prefix backend
 
 Em ambiente publicado, o worker deve ser executado por processo ou Deployment separado do backend web. A declaração e reconciliação desse workload pertencem à camada de delivery/infraestrutura.
 
-Enquanto `omie` estiver desabilitado, a página de Integrações pode ser exibida sem provider registrado e não executa chamadas externas.
+Com `omie` habilitado, a página de Integrações registra o provider nativo e apresenta configuração segura, teste de conexão, chamadas, `listas-omie`, mappings de webhook, filas e diagnósticos sanitizados.
 
 ## Domínio declarado
 
@@ -131,18 +133,18 @@ A criação de pagamento está integralmente declarada em `central.ui.json`:
 - sincronização de estados e cidades pela API oficial do IBGE;
 - proteção contra exclusão de registros em uso.
 
-## Limite desta fase
+## Infraestrutura Omie da Fase 6
 
-A V2 consome a engine genérica, mas ainda não registra um provider de negócio. Permanecem fora desta fase:
+A V2 consome o adaptador Omie nativo do OonCore e declara em `backend/src/mappings/omie.js`:
 
-- configuração e credenciais Omie;
-- cliente HTTP Omie;
-- cadastros mestres Omie;
-- envio e reconciliação de Contas a Pagar;
-- webhook financeiro Omie;
-- mappings entre o domínio SS Eventos e o Omie.
+- teste de conexão por `ListarClientes`;
+- chamadas de clientes/prestadores, categorias, contas correntes e Contas a Pagar;
+- `listas-omie` para clientes/prestadores e categorias financeiras, persistidas nas próprias models funcionais da Central;
+- mappings de webhook financeiro e ações assíncronas rastreáveis.
 
-Esses recursos pertencem ao adaptador nativo da Fase 6.
+Nenhuma model técnica Omie é criada na Central. Configuração, segredos, transporte, fila, inbox, histórico, retry, lease e reprocessamento continuam integralmente no OonCore. Contas correntes permanecem como chamada declarada até que o domínio funcional defina onde esse vínculo será persistido.
+
+A ativação com credenciais reais e a homologação funcional de envio/reconciliação financeira continuam condicionadas à configuração do ambiente; a V2 ainda não está autorizada para cutover.
 
 ## Referência da Fase 0
 
@@ -167,6 +169,8 @@ npm ci --prefix frontend
 npm run build --prefix frontend
 ```
 
-O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers locais, clients Omie e patches de Mongoose.
+A validação consumidora da Fase 6 cobre o registro das chamadas, as duas `listas-omie`, os três mappings financeiros de webhook, as transformações de clientes/prestadores e categorias, a ausência de runtime técnico local e a compatibilidade coordenada com o OonCore `0.3.58`.
+
+O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers locais, clientes HTTP Omie próprios e patches de Mongoose; mappings de negócio em `backend/src/mappings` são a extensão permitida.
 
 O roteiro funcional está em [`docs/HOMOLOGACAO_PARIDADE.md`](docs/HOMOLOGACAO_PARIDADE.md).
