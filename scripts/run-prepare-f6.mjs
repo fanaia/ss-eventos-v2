@@ -9,8 +9,15 @@ source = source.replace(
   /  \]\) assert\.match\(source, new RegExp\([^\n]+\);/,
   "  ]) assert.ok(source.includes(value));",
 );
+source = source.replace(
+  "adaptador Omie nativo[\\\\s\\\\S]*mappings declarados pela Central",
+  "adaptador Omie nativo do OonCore",
+);
 if (source.includes("assert.match(source, new RegExp")) {
   throw new Error("Não foi possível corrigir a geração do teste de mappings.");
+}
+if (source.includes("mappings declarados pela Central")) {
+  throw new Error("Não foi possível alinhar o gate documental da Fase 6.");
 }
 fs.writeFileSync(temporaryPath, source);
 await import(`${pathToFileURL(temporaryPath).href}?${Date.now()}`);
