@@ -140,11 +140,11 @@ test("dependências de referência e exclusões não usam hooks locais", () => {
   assert.ok(processManifest.models.ProjetoItem.deleteProtection.length >= 1);
 });
 
-test("Projeto usa o OonCore 0.3.59 com engine e adaptador Omie nativos", () => {
-  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.59");
-  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.59");
-  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.59");
-  assert.equal(app.compatibility.core.minVersion, "0.3.59");
+test("Projeto usa o OonCore 0.3.60 com engine e adaptador Omie nativos", () => {
+  assert.equal(rootPackage.devDependencies["@oondemand/create-central-oon"], "0.3.60");
+  assert.equal(backendPackage.dependencies["@oondemand/oon-core-back"], "0.3.60");
+  assert.equal(frontendPackage.dependencies["@oondemand/oon-core-front"], "0.3.60");
+  assert.equal(app.compatibility.core.minVersion, "0.3.60");
 
   const projetoView = ui.collections.find((view) => view.model === "Projeto");
   assert.equal(projetoView.detailModal.defaultTab, "resumo");
