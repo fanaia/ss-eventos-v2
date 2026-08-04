@@ -1,0 +1,235 @@
+name: prepare-update-ooncore-0.3.62
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    if: github.head_ref == 'agent/update-ooncore-0.3.62' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/update-ooncore-0.3.62
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Atualizar versão, navegação e contratos
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          CORE = '0.3.62'
+          CENTRAL = '0.1.9'
+
+          def read_json(path):
+              return json.loads(Path(path).read_text())
+
+          def write_json(path, value):
+              Path(path).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+          root = read_json('package.json')
+          root['version'] = CENTRAL
+          root['devDependencies']['@oondemand/create-central-oon'] = CORE
+          write_json('package.json', root)
+
+          backend = read_json('backend/package.json')
+          backend['version'] = CENTRAL
+          backend['dependencies']['@oondemand/oon-core-back'] = CORE
+          write_json('backend/package.json', backend)
+
+          frontend = read_json('frontend/package.json')
+          frontend['version'] = CENTRAL
+          frontend['dependencies']['@oondemand/oon-core-front'] = CORE
+          write_json('frontend/package.json', frontend)
+
+          app = read_json('central.app.json')
+          app['compatibility']['core']['minVersion'] = CORE
+          write_json('central.app.json', app)
+
+          ui = read_json('frontend/central.ui.json')
+          collections = []
+          for collection in ui.get('collections', []):
+              model = collection.get('model')
+              if model in {'Estado', 'Cidade'}:
+                  continue
+              if model in {'Categoria', 'Responsavel'}:
+                  collection['hidden'] = True
+              collections.append(collection)
+          ui['collections'] = collections
+
+          pages = [
+              page for page in ui.get('pages', [])
+              if page.get('path') not in {
+                  '/configuracoes',
+                  '/configuracoes/cadastros-auxiliares',
+              }
+          ]
+          pages.extend([
+              {
+                  'id': 'configuracoes-home',
+                  'path': '/configuracoes',
+                  'label': 'Configurações',
+                  'title': 'Configurações',
+                  'hidden': True,
+                  'blocks': [
+                      {
+                          'type': 'markdown',
+                          'content': 'Cadastros auxiliares e integrações utilizadas pela Central SS Eventos.'
+                      },
+                      {
+                          'type': 'navigation.cards',
+                          'columns': 2,
+                          'cards': [
+                              {
+                                  'title': 'Cadastros Auxiliares',
+                                  'description': 'Categorias, subcategorias e responsáveis utilizados na operação.',
+                                  'href': '/configuracoes/cadastros-auxiliares',
+                                  'actionLabel': 'Abrir cadastros'
+                              },
+                              {
+                                  'title': 'Integração Omie',
+                                  'description': 'Credenciais, sincronizações, webhooks, gatilhos e histórico da integração.',
+                                  'href': '/configuracoes/integracao-omie',
+                                  'actionLabel': 'Abrir Omie'
+                              }
+                          ]
+                      }
+                  ]
+              },
+              {
+                  'id': 'cadastros-auxiliares-home',
+                  'path': '/configuracoes/cadastros-auxiliares',
+                  'label': 'Cadastros Auxiliares',
+                  'title': 'Cadastros Auxiliares',
+                  'hidden': True,
+                  'blocks': [
+                      {
+                          'type': 'navigation.cards',
+                          'columns': 2,
+                          'cards': [
+                              {
+                                  'title': 'Categorias/Subcategorias',
+                                  'description': 'Classificações internas relacionadas às categorias financeiras do Omie.',
+                                  'href': '/categorias',
+                                  'actionLabel': 'Abrir categorias'
+                              },
+                              {
+                                  'title': 'Responsáveis',
+                                  'description': 'Responsáveis operacionais e financeiros dos projetos e pagamentos.',
+                                  'href': '/responsaveis',
+                                  'actionLabel': 'Abrir responsáveis'
+                              }
+                          ]
+                      }
+                  ]
+              }
+          ])
+          ui['pages'] = pages
+          write_json('frontend/central.ui.json', ui)
+
+          text_paths = [
+              'scripts/validate-manifests.mjs',
+              'backend/test/manifest-parity.test.js',
+              'backend/test/runtime-version-contract.test.js',
+              'README.md',
+          ]
+          for raw_path in text_paths:
+              path = Path(raw_path)
+              text = path.read_text().replace('0.3.61', CORE).replace('0.1.8', CENTRAL)
+              path.write_text(text)
+
+          parity_path = Path('backend/test/manifest-parity.test.js')
+          parity = parity_path.read_text()
+          parity = parity.replace(
+              'expected.filter((name) => !["ProjetoItem", "Pagamento"].includes(name)).sort(),',
+              'expected.filter((name) => !["ProjetoItem", "Pagamento", "Estado", "Cidade"].includes(name)).sort(),',
+          )
+          marker = 'test("não incorpora models técnicos da integração", () => {'
+          navigation_test = '''test("configurações usam Home sem poluir o menu lateral", () => {\n  const categoria = ui.collections.find((view) => view.model === "Categoria");\n  const responsavel = ui.collections.find((view) => view.model === "Responsavel");\n  assert.equal(categoria.hidden, true);\n  assert.equal(responsavel.hidden, true);\n  assert.equal(ui.collections.some((view) => view.model === "Estado"), false);\n  assert.equal(ui.collections.some((view) => view.model === "Cidade"), false);\n\n  const settings = ui.pages.find((page) => page.path === "/configuracoes");\n  const auxiliaries = ui.pages.find((page) => page.path === "/configuracoes/cadastros-auxiliares");\n  assert.equal(settings.hidden, true);\n  assert.equal(auxiliaries.hidden, true);\n  const settingsCards = settings.blocks.find((block) => block.type === "navigation.cards").cards;\n  assert.deepEqual(settingsCards.map((card) => card.href), [\n    "/configuracoes/cadastros-auxiliares",\n    "/configuracoes/integracao-omie",\n  ]);\n  const auxiliaryCards = auxiliaries.blocks.find((block) => block.type === "navigation.cards").cards;\n  assert.deepEqual(auxiliaryCards.map((card) => card.href), ["/categorias", "/responsaveis"]);\n});\n\n'''
+          if navigation_test not in parity:
+              parity = parity.replace(marker, navigation_test + marker)
+          parity_path.write_text(parity)
+
+          readme = Path('README.md')
+          text = readme.read_text()
+          section = '''\n## Home de Configurações\n\nA engrenagem do header abre `/configuracoes`. Essa Home oferece os acessos a Cadastros Auxiliares e Integração Omie sem criar seções de Configurações ou Integrações no menu lateral. Categorias/Subcategorias e Responsáveis permanecem acessíveis pela Home de Cadastros Auxiliares. Estados e Cidades continuam disponíveis somente como models internas de referência para os formulários.\n\nA página Omie nativa do OonCore `0.3.62` separa Configurações, Sincronização, Webhooks/Gatilhos e Histórico. O link público do webhook pode ser copiado, e o token é gerado e rotacionado pelo Core.\n'''
+          if '## Home de Configurações' not in text:
+              text += section
+          readme.write_text(text)
+          PY
+
+      - name: Regenerar lockfiles publicados
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --package-lock-only --ignore-scripts
+          npm install --package-lock-only --ignore-scripts --prefix backend
+          npm install --package-lock-only --ignore-scripts --prefix frontend
+
+      - name: Instalar de forma reproduzível
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm ci --prefix backend
+          npm ci --prefix frontend
+
+      - name: Sincronizar documentação do OonCore
+        run: npm run ooncore:docs
+
+      - name: Validar Central consumidora
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run check
+          npm test --prefix backend
+          npm run build --prefix frontend
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const read = (path) => JSON.parse(fs.readFileSync(path, 'utf8'));
+          const root = read('package.json');
+          const backend = read('backend/package.json');
+          const frontend = read('frontend/package.json');
+          const app = read('central.app.json');
+          const ui = read('frontend/central.ui.json');
+          const expected = '0.3.62';
+          if (root.devDependencies['@oondemand/create-central-oon'] !== expected) throw new Error('Gerador desalinhado.');
+          if (backend.dependencies['@oondemand/oon-core-back'] !== expected) throw new Error('Backend desalinhado.');
+          if (frontend.dependencies['@oondemand/oon-core-front'] !== expected) throw new Error('Frontend desalinhado.');
+          if (app.compatibility.core.minVersion !== expected) throw new Error('Manifesto desalinhado.');
+          if (root.version !== '0.1.9' || backend.version !== '0.1.9' || frontend.version !== '0.1.9') throw new Error('Versão da Central desalinhada.');
+          if (ui.collections.some((view) => ['Estado', 'Cidade'].includes(view.model))) throw new Error('Localidades ainda expostas como cadastros.');
+          for (const model of ['Categoria', 'Responsavel']) {
+            if (ui.collections.find((view) => view.model === model)?.hidden !== true) throw new Error(`${model} ainda visível no menu.`);
+          }
+          const settings = ui.pages.find((page) => page.path === '/configuracoes');
+          if (!settings?.blocks?.some((block) => block.type === 'navigation.cards')) throw new Error('Home de configurações ausente.');
+          const builtCore = fs.readFileSync('frontend/node_modules/@oondemand/oon-core-front/dist/index.js', 'utf8');
+          for (const contract of ['/configuracoes/integracao-omie', 'Webhooks/Gatilhos', 'Gerar novo token', 'Copiar link']) {
+            if (!builtCore.includes(contract)) throw new Error(`Contrato do OonCore ausente: ${contract}`);
+          }
+          NODE
+
+      - name: Remover preparação e gravar atualização
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/prepare-update-ooncore-0.3.62.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: atualizar configurações e Omie para OonCore 0.3.62"
+          git push origin HEAD:agent/update-ooncore-0.3.62
