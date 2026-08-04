@@ -16,13 +16,13 @@ test("Central publica versões identificáveis do aplicativo e do OonCore", () =
   const frontend = readJson("frontend/package.json");
   const app = readJson("central.app.json");
 
-  assert.equal(central.version, "0.1.8");
+  assert.equal(central.version, "0.1.9");
   assert.equal(backend.version, central.version);
   assert.equal(frontend.version, central.version);
-  assert.equal(central.devDependencies["@oondemand/create-central-oon"], "0.3.61");
-  assert.equal(backend.dependencies["@oondemand/oon-core-back"], "0.3.61");
-  assert.equal(frontend.dependencies["@oondemand/oon-core-front"], "0.3.61");
-  assert.equal(app.compatibility.core.minVersion, "0.3.61");
+  assert.equal(central.devDependencies["@oondemand/create-central-oon"], "0.3.62");
+  assert.equal(backend.dependencies["@oondemand/oon-core-back"], "0.3.62");
+  assert.equal(frontend.dependencies["@oondemand/oon-core-front"], "0.3.62");
+  assert.equal(app.compatibility.core.minVersion, "0.3.62");
 });
 
 test("mantém Integrações e Omie habilitados para o atalho de configurações do Core", () => {
