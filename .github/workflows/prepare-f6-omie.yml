@@ -5,8 +5,7 @@ on:
     branches:
       - agent/f6-consume-omie-0.3.58
     paths:
-      - scripts/prepare-f6-omie.mjs
-      - scripts/run-prepare-f6.mjs
+      - scripts/prepare-f6-omie-v2.mjs
       - .github/workflows/prepare-f6-omie.yml
   pull_request:
     types:
@@ -41,8 +40,8 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
 
-      - name: Apply F6 changes
-        run: node scripts/run-prepare-f6.mjs
+      - name: Apply conformant F6 changes
+        run: node scripts/prepare-f6-omie-v2.mjs
 
       - name: Regenerate root lockfile
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
@@ -79,6 +78,7 @@ jobs:
         run: |
           rm -f scripts/prepare-f6-omie.mjs
           rm -f scripts/run-prepare-f6.mjs
+          rm -f scripts/prepare-f6-omie-v2.mjs
           rm -f .github/workflows/prepare-f6-omie.yml
 
       - name: Commit generated consumer update
