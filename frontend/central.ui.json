@@ -1557,5 +1557,141 @@
         }
       ]
     }
+  ],
+  "dashboards": [
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "path": "/",
+      "section": "Geral",
+      "order": 0,
+      "widgets": [
+        {
+          "id": "projetos-total",
+          "label": "Projetos",
+          "description": "Quantidade total de projetos cadastrados.",
+          "model": "Projeto",
+          "kind": "count",
+          "format": "number"
+        },
+        {
+          "id": "itens-total",
+          "label": "Itens",
+          "description": "Quantidade total de itens dos projetos.",
+          "model": "ProjetoItem",
+          "kind": "count",
+          "format": "number"
+        },
+        {
+          "id": "pagamentos-total",
+          "label": "Pagamentos",
+          "description": "Quantidade de pagamentos não cancelados na Central.",
+          "model": "Pagamento",
+          "kind": "count",
+          "filters": {
+            "canceladoNaCentral": {
+              "ne": true
+            }
+          },
+          "format": "number"
+        },
+        {
+          "id": "valor-orcado",
+          "label": "Valor orçado",
+          "description": "Soma do orçamento de todos os itens.",
+          "model": "ProjetoItem",
+          "kind": "sum",
+          "field": "orcamentoTotal",
+          "format": "currency"
+        },
+        {
+          "id": "valor-contratado",
+          "label": "Valor contratado",
+          "description": "Soma das contratações de todos os itens.",
+          "model": "ProjetoItem",
+          "kind": "sum",
+          "field": "contratacaoTotal",
+          "format": "currency"
+        },
+        {
+          "id": "valor-fechado",
+          "label": "Valor de fechamento",
+          "description": "Soma dos valores finais, incluindo fee e impostos.",
+          "model": "ProjetoItem",
+          "kind": "sum",
+          "field": "fechamentoTotal",
+          "format": "currency"
+        },
+        {
+          "id": "valor-pagamentos",
+          "label": "Pagamentos planejados",
+          "description": "Soma dos pagamentos não cancelados registrados na Central.",
+          "model": "Pagamento",
+          "kind": "sum",
+          "field": "valor",
+          "filters": {
+            "canceladoNaCentral": {
+              "ne": true
+            }
+          },
+          "format": "currency"
+        },
+        {
+          "id": "valor-pendente",
+          "label": "Pendente de pagamento",
+          "description": "Saldo consolidado ainda pendente de pagamento nos itens.",
+          "model": "ProjetoItem",
+          "kind": "sum",
+          "field": "pagamentoValorPendente",
+          "format": "currency"
+        },
+        {
+          "id": "itens-por-etapa",
+          "label": "Itens por etapa",
+          "description": "Distribuição dos tickets de itens na esteira.",
+          "model": "ProjetoItem",
+          "kind": "groupCount",
+          "groupBy": "etapa",
+          "format": "number"
+        },
+        {
+          "id": "pagamentos-por-etapa",
+          "label": "Pagamentos por etapa",
+          "description": "Distribuição dos tickets de pagamentos na esteira.",
+          "model": "Pagamento",
+          "kind": "groupCount",
+          "groupBy": "etapa",
+          "filters": {
+            "canceladoNaCentral": {
+              "ne": true
+            }
+          },
+          "format": "number"
+        },
+        {
+          "id": "itens-por-status-trabalho",
+          "label": "Itens por status de trabalho",
+          "description": "Aguardando início, trabalhando ou em revisão.",
+          "model": "ProjetoItem",
+          "kind": "groupCount",
+          "groupBy": "statusTrabalho",
+          "format": "number"
+        },
+        {
+          "id": "pagamentos-por-status-trabalho",
+          "label": "Pagamentos por status de trabalho",
+          "description": "Aguardando início, trabalhando ou em revisão.",
+          "model": "Pagamento",
+          "kind": "groupCount",
+          "groupBy": "statusTrabalho",
+          "filters": {
+            "canceladoNaCentral": {
+              "ne": true
+            }
+          },
+          "format": "number"
+        }
+      ]
+    }
   ]
 }
