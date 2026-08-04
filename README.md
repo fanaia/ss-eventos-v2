@@ -23,13 +23,13 @@ A engine de integrações pertence ao OonCore. Não existem na V2 models técnic
 
 ## Versão-alvo
 
-Os três pacotes estão fixados exatamente em `0.3.59`:
+Os três pacotes estão fixados exatamente em `0.3.60`:
 
 - `@oondemand/create-central-oon`;
 - `@oondemand/oon-core-back`;
 - `@oondemand/oon-core-front`.
 
-A versão `0.3.59` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
+A versão `0.3.60` está publicada no npm e é consumida por lockfiles reproduzíveis da raiz, do backend e do frontend.
 
 Além dos contratos declarativos anteriores, essa versão fornece a engine genérica de integrações, página operacional nativa e o executável separado `oonCore-integration-worker`.
 
@@ -85,7 +85,7 @@ Em ambiente publicado, o worker deve ser executado por processo ou Deployment se
 
 Com `omie` habilitado, a página de Integrações registra o provider nativo e apresenta configuração segura, teste de conexão, chamadas, `listas-omie`, mappings de webhook, filas e diagnósticos sanitizados.
 
-No OonCore `0.3.59`, a engrenagem no header direciona para a configuração da Central e, na ausência de uma página própria, abre `/integracoes`. As capabilities arquiteturais do aplicativo são avaliadas separadamente das permissões RBAC do usuário, permitindo acessar a configuração e o teste do Omie sem duplicar a capability no token.
+No OonCore `0.3.60`, a engrenagem no header direciona para a configuração da Central e, na ausência de uma página própria, abre `/integracoes`. As capabilities arquiteturais do aplicativo são avaliadas separadamente das permissões RBAC do usuário, permitindo acessar a configuração e o teste do Omie sem duplicar a capability no token. A versão também corrige a persistência das credenciais Omie em ambientes publicados, reutilizando `INSTANCE_CREDENTIAL_ENCRYPTION_KEY`, e apresenta na interface o diagnóstico sanitizado devolvido pelo backend.
 
 ## Domínio declarado
 
@@ -171,7 +171,7 @@ npm ci --prefix frontend
 npm run build --prefix frontend
 ```
 
-A validação consumidora da Fase 6 cobre o registro das chamadas, as duas `listas-omie`, os três mappings financeiros de webhook, as transformações de clientes/prestadores e categorias, a ausência de runtime técnico local e a compatibilidade coordenada com o OonCore `0.3.59`.
+A validação consumidora da Fase 6 cobre o registro das chamadas, as duas `listas-omie`, os três mappings financeiros de webhook, as transformações de clientes/prestadores e categorias, a ausência de runtime técnico local e a compatibilidade coordenada com o OonCore `0.3.60`.
 
 O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers locais, clientes HTTP Omie próprios e patches de Mongoose; mappings de negócio em `backend/src/mappings` são a extensão permitida.
 
