@@ -169,6 +169,8 @@ npm ci --prefix frontend
 npm run build --prefix frontend
 ```
 
+A validação consumidora da Fase 6 cobre o registro das chamadas, as duas `listas-omie`, os três mappings financeiros de webhook, as transformações de clientes/prestadores e categorias, a ausência de runtime técnico local e a compatibilidade coordenada com o OonCore `0.3.58`.
+
 O gate rejeita transforms no bootstrap, registries/páginas locais, identidade duplicada, models técnicos, workers locais, clientes HTTP Omie próprios e patches de Mongoose; mappings de negócio em `backend/src/mappings` são a extensão permitida.
 
 O roteiro funcional está em [`docs/HOMOLOGACAO_PARIDADE.md`](docs/HOMOLOGACAO_PARIDADE.md).
