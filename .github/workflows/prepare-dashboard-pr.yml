@@ -32,6 +32,24 @@ jobs:
       - name: Atualizar Central e Dashboard
         run: python3 scripts/prepare-dashboard-0.3.63.py
 
+      - name: Atualizar contratos internos de versão
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          for raw in [
+              "scripts/validate-manifests.mjs",
+              "backend/test/manifest-parity.test.js",
+              "backend/test/runtime-version-contract.test.js",
+              "README.md",
+              "docs/CONFIGURACOES_OMIE.md",
+          ]:
+              path = Path(raw)
+              text = path.read_text()
+              path.write_text(text.replace("0.3.62", "0.3.63"))
+          PY
+
       - name: Regenerar lockfiles oficiais
         run: |
           npm install --package-lock-only --ignore-scripts
